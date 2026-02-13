@@ -1,0 +1,15 @@
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\bin\Debug\net9.0\ProductCatalog.Application.deps.json
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\bin\Debug\net9.0\ProductCatalog.Application.dll
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\bin\Debug\net9.0\ProductCatalog.Application.pdb
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\bin\Debug\net9.0\ProductCatalog.Domain.dll
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\bin\Debug\net9.0\ProductCatalog.Domain.pdb
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.csproj.AssemblyReference.cache
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.AssemblyInfo.cs
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductC.224523BD.Up2Date
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.dll
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\refint\ProductCatalog.Application.dll
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ProductCatalog.Application.pdb
+C:\Users\Admin\Desktop\licenta\ProductCatalog.Application\obj\Debug\net9.0\ref\ProductCatalog.Application.dll

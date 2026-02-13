@@ -1,0 +1,11 @@
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\bin\Debug\net9.0\UserManagement.Domain.deps.json
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\bin\Debug\net9.0\UserManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\bin\Debug\net9.0\UserManagement.Domain.pdb
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.AssemblyInfo.cs
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\refint\UserManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\UserManagement.Domain.pdb
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Domain\obj\Debug\net9.0\ref\UserManagement.Domain.dll

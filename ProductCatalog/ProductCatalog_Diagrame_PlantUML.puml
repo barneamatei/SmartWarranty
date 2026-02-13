@@ -1,0 +1,279 @@
+@startuml Diagrama_Pachete_ProductCatalog
+!theme plain
+title Diagrama de pachete - ProductCatalog (microserviciu)
+
+package "ProductCatalog.Controller" as Controller {
+  [Program.cs]
+  folder "Controllers" as Ctrl {
+    [ProductController]
+    [CategoryController]
+  }
+}
+
+package "ProductCatalog.Service" as Service {
+  folder "Service" as Svc {
+    [IProductCatalogService]
+    [ProductCatalogService]
+    [ICategoryCatalogService]
+    [CategoryCatalogService]
+  }
+  folder "Repository" as RepoIf {
+    [IProductRepository]
+    [ICategoryRepository]
+  }
+  folder "DTOs" as ReqDto {
+    [CreateProductRequest]
+    [UpdateProductRequest]
+    [CreateCategoryRequest]
+    [UpdateCategoryRequest]
+  }
+}
+
+package "ProductCatalog.Infrastructure" as Infrastructure {
+  folder "Data" as Data {
+    [ProductCatalogDbContext]
+    [DbInitializer]
+  }
+  folder "Repository" as RepoImpl {
+    [ProductRepository]
+    [CategoryRepository]
+  }
+}
+
+package "ProductCatalog.Domain" as Domain {
+  folder "Entities" as Ent {
+    [Product]
+    [Category]
+    [ProductStatus]
+  }
+  folder "DTOs" as DomainDto {
+    [ProductDto]
+    [CategoryDto]
+  }
+}
+
+Controller ..> Service : folosește
+Controller ..> Domain : ProductDto, CategoryDto
+Service ..> Domain : Entities, DTOs
+Service ..> RepoIf : definește
+Infrastructure ..> Domain : Entities
+Infrastructure ..> Service : implementează I*Repository
+
+@enduml
+
+
+@startuml Diagrama_Clase_ProductCatalog
+!theme plain
+title Diagrama de clase - ProductCatalog
+
+' === DOMAIN - Entities ===
+enum ProductStatus {
+  Active
+  Inactive
+  Archived
+}
+
+class Product {
+  - ProductId : Guid
+  - Name : string
+  - Brand : string
+  - Model : string
+  - CategoryId : Guid
+  - Status : ProductStatus
+  --
+  + Product(productId, name, brand, model, categoryId)
+  + UpdateDetails(name, brand, model) : void
+  + ChangeCategory(categoryId) : void
+  + Deactivate() : void
+}
+Product --> ProductStatus : Status
+
+class Category {
+  - CategoryId : Guid
+  - Name : string
+  - Description : string
+  --
+  + Category(categoryId, name, description)
+  + Rename(name) : void
+  + UpdateDescription(description) : void
+}
+Product ..> Category : CategoryId (referință)
+
+' === DOMAIN - DTOs ===
+class ProductDto {
+  + ProductId : Guid
+  + Name : string
+  + Brand : string
+  + Model : string
+  + CategoryId : Guid
+  + Status : string
+}
+
+class CategoryDto {
+  + CategoryId : Guid
+  + Name : string
+  + Description : string
+}
+
+' === SERVICE - Repository interfaces ===
+interface IProductRepository {
+  + GetByIdAsync(productId) : Task<Product?>
+  + GetAllAsync() : Task<IEnumerable<Product>>
+  + AddAsync(product) : Task<Product>
+  + UpdateAsync(product) : Task<Product>
+  + DeleteAsync(productId) : Task<bool>
+}
+
+interface ICategoryRepository {
+  + GetByIdAsync(categoryId) : Task<Category?>
+  + GetAllAsync() : Task<IEnumerable<Category>>
+  + AddAsync(category) : Task<Category>
+  + UpdateAsync(category) : Task<Category>
+  + DeleteAsync(categoryId) : Task<bool>
+}
+
+' === SERVICE - Services ===
+interface IProductCatalogService {
+  + CreateProductAsync(...) : Task<ProductDto>
+  + UpdateProductAsync(...) : Task<ProductDto>
+  + ChangeCategoryAsync(...) : Task<ProductDto>
+  + GetProductByIdAsync(productId) : Task<ProductDto?>
+  + GetAllProductsAsync() : Task<IEnumerable<ProductDto>>
+  + GetProductsByCategoryAsync(categoryId) : Task<IEnumerable<ProductDto>>
+  + DeleteProductAsync(productId) : Task<bool>
+}
+
+interface ICategoryCatalogService {
+  + CreateCategoryAsync(name, description) : Task<CategoryDto>
+  + UpdateCategoryAsync(categoryId, name, description) : Task<CategoryDto>
+  + GetCategoryByIdAsync(categoryId) : Task<CategoryDto?>
+  + GetAllCategoriesAsync() : Task<IEnumerable<CategoryDto>>
+  + DeleteCategoryAsync(categoryId) : Task<bool>
+}
+
+class ProductCatalogService {
+  - _productRepository : IProductRepository
+  - _categoryRepository : ICategoryRepository
+  --
+  + CreateProductAsync(...) : Task<ProductDto>
+  + UpdateProductAsync(...) : Task<ProductDto>
+  + ChangeCategoryAsync(...) : Task<ProductDto>
+  + GetProductByIdAsync(...) : Task<ProductDto?>
+  + GetAllProductsAsync() : Task<IEnumerable<ProductDto>>
+  + GetProductsByCategoryAsync(...) : Task<IEnumerable<ProductDto>>
+  + DeleteProductAsync(...) : Task<bool>
+  - MapToDto(product) : ProductDto
+}
+
+class CategoryCatalogService {
+  - _categoryRepository : ICategoryRepository
+  - _productRepository : IProductRepository
+  --
+  + CreateCategoryAsync(...) : Task<CategoryDto>
+  + UpdateCategoryAsync(...) : Task<CategoryDto>
+  + GetCategoryByIdAsync(...) : Task<CategoryDto?>
+  + GetAllCategoriesAsync() : Task<IEnumerable<CategoryDto>>
+  + DeleteCategoryAsync(...) : Task<bool>
+  - MapToDto(category) : CategoryDto
+}
+
+ProductCatalogService ..|> IProductCatalogService
+CategoryCatalogService ..|> ICategoryCatalogService
+ProductCatalogService --> IProductRepository : folosește
+ProductCatalogService --> ICategoryRepository : folosește
+CategoryCatalogService --> ICategoryRepository : folosește
+CategoryCatalogService --> IProductRepository : folosește
+ProductCatalogService ..> Product : mapează
+ProductCatalogService ..> ProductDto : returnează
+CategoryCatalogService ..> Category : mapează
+CategoryCatalogService ..> CategoryDto : returnează
+
+' === SERVICE - Request DTOs ===
+class CreateProductRequest {
+  + Name : string
+  + Brand : string
+  + Model : string
+  + CategoryId : Guid
+}
+
+class UpdateProductRequest {
+  + Name : string
+  + Brand : string
+  + Model : string
+}
+
+class CreateCategoryRequest {
+  + Name : string
+  + Description : string
+}
+
+class UpdateCategoryRequest {
+  + Name : string
+  + Description : string
+}
+
+' === INFRASTRUCTURE ===
+class ProductRepository {
+  - _context : ProductCatalogDbContext
+  --
+  + GetByIdAsync(productId) : Task<Product?>
+  + GetAllAsync() : Task<IEnumerable<Product>>
+  + AddAsync(product) : Task<Product>
+  + UpdateAsync(product) : Task<Product>
+  + DeleteAsync(productId) : Task<bool>
+}
+
+class CategoryRepository {
+  - _context : ProductCatalogDbContext
+  --
+  + GetByIdAsync(categoryId) : Task<Category?>
+  + GetAllAsync() : Task<IEnumerable<Category>>
+  + AddAsync(category) : Task<Category>
+  + UpdateAsync(category) : Task<Category>
+  + DeleteAsync(categoryId) : Task<bool>
+}
+
+class ProductCatalogDbContext {
+  + Products : DbSet<Product>
+  + Categories : DbSet<Category>
+  + OnModelCreating(...) : void
+}
+
+ProductRepository ..|> IProductRepository
+CategoryRepository ..|> ICategoryRepository
+ProductRepository --> ProductCatalogDbContext : folosește
+CategoryRepository --> ProductCatalogDbContext : folosește
+ProductCatalogDbContext --> Product : DbSet
+ProductCatalogDbContext --> Category : DbSet
+
+' === CONTROLLER ===
+class ProductController {
+  - _productCatalogService : IProductCatalogService
+  --
+  + CreateProduct(request) : Task<ActionResult<ProductDto>>
+  + UpdateProduct(id, request) : Task<ActionResult<ProductDto>>
+  + GetAllProducts() : Task<ActionResult<IEnumerable<ProductDto>>>
+  + GetProductById(id) : Task<ActionResult<ProductDto>>
+  + DeleteProduct(id) : Task<IActionResult>
+}
+
+class CategoryController {
+  - _categoryCatalogService : ICategoryCatalogService
+  --
+  + CreateCategory(request) : Task<ActionResult<CategoryDto>>
+  + UpdateCategory(id, request) : Task<ActionResult<CategoryDto>>
+  + GetAllCategories() : Task<ActionResult<IEnumerable<CategoryDto>>>
+  + GetCategoryById(id) : Task<ActionResult<CategoryDto>>
+  + DeleteCategory(id) : Task<IActionResult>
+}
+
+ProductController --> IProductCatalogService : folosește
+ProductController ..> CreateProductRequest : [FromBody]
+ProductController ..> UpdateProductRequest : [FromBody]
+ProductController ..> ProductDto : returnează
+CategoryController --> ICategoryCatalogService : folosește
+CategoryController ..> CreateCategoryRequest : [FromBody]
+CategoryController ..> UpdateCategoryRequest : [FromBody]
+CategoryController ..> CategoryDto : returnează
+
+@enduml

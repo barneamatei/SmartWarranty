@@ -1,0 +1,15 @@
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\bin\Debug\net9.0\UserManagement.Service.deps.json
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\bin\Debug\net9.0\UserManagement.Service.dll
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\bin\Debug\net9.0\UserManagement.Service.pdb
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\bin\Debug\net9.0\UserManagement.Domain.dll
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\bin\Debug\net9.0\UserManagement.Domain.pdb
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.csproj.AssemblyReference.cache
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.AssemblyInfoInputs.cache
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.AssemblyInfo.cs
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.csproj.CoreCompileInputs.cache
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserMana.B0BDF934.Up2Date
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.dll
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\refint\UserManagement.Service.dll
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.pdb
+c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\ref\UserManagement.Service.dll

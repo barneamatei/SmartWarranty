@@ -13,3 +13,4 @@ c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\n
 c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\refint\UserManagement.Service.dll
 c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.pdb
 c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\ref\UserManagement.Service.dll
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Service\obj\Debug\net9.0\UserManagement.Service.sourcelink.json

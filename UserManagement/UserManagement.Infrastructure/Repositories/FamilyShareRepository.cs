@@ -5,7 +5,7 @@ using UserManagement.Infrastructure.Persistence;
 
 namespace UserManagement.Infrastructure.Repositories;
 
-public class FamilyShareRepository : IFamilyShareRepository
+public class FamilyShareRepository : IFamilyShareDao
 {
     private readonly UserManagementDbContext _context;
 
@@ -18,6 +18,11 @@ public class FamilyShareRepository : IFamilyShareRepository
     {
         return await _context.FamilyShares
             .FirstOrDefaultAsync(f => f.ShareId == shareId, cancellationToken);
+    }
+
+    public async Task<IEnumerable<FamilyShare>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.FamilyShares.ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<FamilyShare>> GetByOwnerIdAsync(Guid ownerUserId, CancellationToken cancellationToken = default)
@@ -65,3 +70,4 @@ public class FamilyShareRepository : IFamilyShareRepository
         return true;
     }
 }
+

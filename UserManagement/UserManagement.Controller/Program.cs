@@ -23,9 +23,9 @@ var connectionString = builder.Configuration.GetConnectionString("UserManagement
 builder.Services.AddDbContext<UserManagementDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IFamilyShareRepository, FamilyShareRepository>();
-builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IUserDao, UserRepository>();
+builder.Services.AddScoped<IFamilyShareDao, FamilyShareRepository>();
+builder.Services.AddScoped<ISubscriptionDao, SubscriptionRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFamilyShareService, FamilyShareService>();
@@ -69,3 +69,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

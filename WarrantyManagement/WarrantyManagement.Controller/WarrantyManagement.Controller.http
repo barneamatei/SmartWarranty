@@ -1,0 +1,6 @@
+@WarrantyManagement.Controller_HostAddress = http://localhost:5281
+
+GET {{WarrantyManagement.Controller_HostAddress}}/api/warranty
+Accept: application/json
+
+###

@@ -1,4 +1,4 @@
-using UserManagement.Service.DTOs;
+using UserManagement.Domain.DTOs;
 using UserManagement.Service.Exceptions;
 using UserManagement.Domain.Contracts;
 using UserManagement.Domain.Entities;
@@ -7,22 +7,22 @@ namespace UserManagement.Service.Services;
 
 public class SubscriptionService : ISubscriptionService
 {
-    private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly ISubscriptionDao _subscriptionDao;
+    private readonly IUserDao _userDao;
 
-    public SubscriptionService(ISubscriptionRepository subscriptionRepository, IUserRepository userRepository)
+    public SubscriptionService(ISubscriptionDao subscriptionDao, IUserDao userDao)
     {
-        _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
-        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        _subscriptionDao = subscriptionDao ?? throw new ArgumentNullException(nameof(subscriptionDao));
+        _userDao = userDao ?? throw new ArgumentNullException(nameof(userDao));
     }
 
     public async Task<SubscriptionResponseDto> CreateAsync(CreateSubscriptionDto dto, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(dto.UserId, cancellationToken);
+        var user = await _userDao.GetByIdAsync(dto.UserId, cancellationToken);
         if (user == null)
             throw new DomainException($"User with ID {dto.UserId} not found.");
 
-        var existing = await _subscriptionRepository.GetByUserIdAsync(dto.UserId, cancellationToken);
+        var existing = await _subscriptionDao.GetByUserIdAsync(dto.UserId, cancellationToken);
         if (existing != null)
             throw new DomainException($"User {dto.UserId} already has a subscription.");
 
@@ -30,31 +30,31 @@ public class SubscriptionService : ISubscriptionService
         var subscriptionId = Guid.NewGuid();
         var subscription = new Subscription(subscriptionId, dto.UserId, planType, dto.StartDate, dto.EndDate);
 
-        var saved = await _subscriptionRepository.AddAsync(subscription, cancellationToken);
+        var saved = await _subscriptionDao.AddAsync(subscription, cancellationToken);
         return MapToResponse(saved);
     }
 
     public async Task<SubscriptionResponseDto?> GetByIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken);
+        var subscription = await _subscriptionDao.GetByIdAsync(subscriptionId, cancellationToken);
         return subscription == null ? null : MapToResponse(subscription);
     }
 
     public async Task<SubscriptionResponseDto?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var subscription = await _subscriptionRepository.GetByUserIdAsync(userId, cancellationToken);
+        var subscription = await _subscriptionDao.GetByUserIdAsync(userId, cancellationToken);
         return subscription == null ? null : MapToResponse(subscription);
     }
 
     public async Task<IEnumerable<SubscriptionResponseDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var subscriptions = await _subscriptionRepository.GetAllAsync(cancellationToken);
+        var subscriptions = await _subscriptionDao.GetAllAsync(cancellationToken);
         return subscriptions.Select(MapToResponse);
     }
 
     public async Task<SubscriptionResponseDto> UpdateAsync(Guid subscriptionId, UpdateSubscriptionDto dto, CancellationToken cancellationToken = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken);
+        var subscription = await _subscriptionDao.GetByIdAsync(subscriptionId, cancellationToken);
         if (subscription == null)
             throw new DomainException($"Subscription with ID {subscriptionId} not found.");
 
@@ -65,13 +65,13 @@ public class SubscriptionService : ISubscriptionService
         else
             subscription.DowngradeToFree(dto.EndDate);
 
-        var updated = await _subscriptionRepository.UpdateAsync(subscription, cancellationToken);
+        var updated = await _subscriptionDao.UpdateAsync(subscription, cancellationToken);
         return MapToResponse(updated);
     }
 
     public async Task<bool> DeleteAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
-        return await _subscriptionRepository.DeleteAsync(subscriptionId, cancellationToken);
+        return await _subscriptionDao.DeleteAsync(subscriptionId, cancellationToken);
     }
 
     private static SubscriptionResponseDto MapToResponse(Subscription subscription)
@@ -87,3 +87,6 @@ public class SubscriptionService : ISubscriptionService
         };
     }
 }
+
+
+

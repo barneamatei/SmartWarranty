@@ -1,0 +1,12 @@
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\bin\Debug\net9.0\WarrantyManagement.Domain.deps.json
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\bin\Debug\net9.0\WarrantyManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\bin\Debug\net9.0\WarrantyManagement.Domain.pdb
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.AssemblyInfo.cs
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.sourcelink.json
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\refint\WarrantyManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\WarrantyManagement.Domain.pdb
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Domain\obj\Debug\net9.0\ref\WarrantyManagement.Domain.dll

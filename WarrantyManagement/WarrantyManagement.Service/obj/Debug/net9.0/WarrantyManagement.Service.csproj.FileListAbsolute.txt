@@ -1,0 +1,16 @@
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\bin\Debug\net9.0\WarrantyManagement.Service.deps.json
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\bin\Debug\net9.0\WarrantyManagement.Service.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\bin\Debug\net9.0\WarrantyManagement.Service.pdb
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\bin\Debug\net9.0\WarrantyManagement.Domain.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\bin\Debug\net9.0\WarrantyManagement.Domain.pdb
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.csproj.AssemblyReference.cache
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.AssemblyInfo.cs
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.sourcelink.json
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\Warranty.90924DB9.Up2Date
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\refint\WarrantyManagement.Service.dll
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\WarrantyManagement.Service.pdb
+C:\Users\Admin\Desktop\licenta\WarrantyManagement\WarrantyManagement.Service\obj\Debug\net9.0\ref\WarrantyManagement.Service.dll

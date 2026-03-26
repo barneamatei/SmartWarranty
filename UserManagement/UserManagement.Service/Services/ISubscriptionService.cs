@@ -1,4 +1,4 @@
-using UserManagement.Service.DTOs;
+using UserManagement.Domain.DTOs;
 
 namespace UserManagement.Service.Services;
 
@@ -16,3 +16,4 @@ public interface ISubscriptionService
 
     Task<bool> DeleteAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
 }
+

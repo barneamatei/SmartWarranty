@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using UserManagement.Service.DTOs;
+using UserManagement.Domain.DTOs;
 using UserManagement.Service.Exceptions;
 using UserManagement.Service.Services;
 
@@ -76,3 +76,4 @@ public class SubscriptionController : ControllerBase
         return NoContent();
     }
 }
+

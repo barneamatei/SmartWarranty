@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using UserManagement.Service.DTOs;
+using UserManagement.Domain.DTOs;
 using UserManagement.Service.Exceptions;
 using UserManagement.Service.Services;
 
@@ -34,6 +34,14 @@ public class FamilyShareController : ControllerBase
         if (share == null)
             return NotFound(new { error = $"Family share with ID {id} not found." });
         return Ok(share);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<FamilyShareResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<FamilyShareResponseDto>>> GetAll(CancellationToken cancellationToken)
+    {
+        var shares = await _familyShareService.GetAllAsync(cancellationToken);
+        return Ok(shares);
     }
 
     [HttpGet("owner/{ownerUserId}")]
@@ -73,3 +81,4 @@ public class FamilyShareController : ControllerBase
         return NoContent();
     }
 }
+

@@ -5,7 +5,7 @@ using UserManagement.Infrastructure.Persistence;
 
 namespace UserManagement.Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository : IUserDao
 {
     private readonly UserManagementDbContext _context;
 
@@ -63,3 +63,4 @@ public class UserRepository : IUserRepository
         return true;
     }
 }
+

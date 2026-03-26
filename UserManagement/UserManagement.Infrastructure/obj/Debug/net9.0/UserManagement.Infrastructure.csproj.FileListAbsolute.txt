@@ -17,3 +17,4 @@ C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Infrastructure\obj\
 C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Infrastructure\obj\Debug\net9.0\ref\UserManagement.Infrastructure.dll
 c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Infrastructure\bin\Debug\net9.0\UserManagement.Service.dll
 c:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Infrastructure\bin\Debug\net9.0\UserManagement.Service.pdb
+C:\Users\Admin\Desktop\licenta\UserManagement\UserManagement.Infrastructure\obj\Debug\net9.0\UserManagement.Infrastructure.sourcelink.json

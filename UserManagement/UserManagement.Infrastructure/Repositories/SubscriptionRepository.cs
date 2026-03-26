@@ -5,7 +5,7 @@ using UserManagement.Infrastructure.Persistence;
 
 namespace UserManagement.Infrastructure.Repositories;
 
-public class SubscriptionRepository : ISubscriptionRepository
+public class SubscriptionRepository : ISubscriptionDao
 {
     private readonly UserManagementDbContext _context;
 
@@ -57,3 +57,4 @@ public class SubscriptionRepository : ISubscriptionRepository
         return true;
     }
 }
+

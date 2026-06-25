@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,9 +10,23 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 
 import { AuthViewModel } from '../../../auth/view-models/auth.view-model';
+import { AuthApiService } from '../../../auth/data/auth-api.service';
 import { AccountApiService } from '../../data/account-api.service';
 import { UserRecord } from '../../models/account.models';
 import { UiFeedbackService } from '../../../../shared/ui/ui-feedback.service';
+
+const passwordStrengthPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const newPassword = control.get('newPassword')?.value;
+  const confirmNewPassword = control.get('confirmNewPassword')?.value;
+
+  if (!newPassword || !confirmNewPassword) {
+    return null;
+  }
+
+  return newPassword === confirmNewPassword ? null : { passwordMismatch: true };
+};
 
 @Component({
   selector: 'app-profile-page',
@@ -30,6 +44,7 @@ import { UiFeedbackService } from '../../../../shared/ui/ui-feedback.service';
 })
 export class ProfilePageComponent {
   private readonly authViewModel = inject(AuthViewModel);
+  private readonly authApi = inject(AuthApiService);
   private readonly accountApi = inject(AccountApiService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly uiFeedback = inject(UiFeedbackService);
@@ -37,6 +52,7 @@ export class ProfilePageComponent {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly changingPassword = signal(false);
   readonly userRecord = signal<UserRecord | null>(null);
   readonly profileMissing = signal(false);
   readonly currentUserId = computed(() => this.authViewModel.user()?.userId || this.authViewModel.user()?.id || '');
@@ -49,6 +65,15 @@ export class ProfilePageComponent {
     language: ['', [Validators.maxLength(10)]],
     preferences: ['', [Validators.maxLength(500)]]
   });
+
+  readonly passwordForm = this.formBuilder.nonNullable.group(
+    {
+      currentPassword: ['', [Validators.required]],
+      newPassword: ['', [Validators.required, Validators.pattern(passwordStrengthPattern)]],
+      confirmNewPassword: ['', [Validators.required]]
+    },
+    { validators: [passwordMatchValidator] }
+  );
 
   constructor() {
     this.loadProfile();
@@ -90,6 +115,34 @@ export class ProfilePageComponent {
       },
       complete: () => this.saving.set(false)
     });
+  }
+
+  changePassword() {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+
+    this.changingPassword.set(true);
+
+    this.authApi
+      .changePassword(this.passwordForm.getRawValue())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.passwordForm.reset();
+          this.uiFeedback.success('Parola a fost schimbata.');
+        },
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.error?.error) {
+            this.uiFeedback.error(error.error.error);
+            return;
+          }
+
+          this.uiFeedback.error('Nu am putut schimba parola.');
+        },
+        complete: () => this.changingPassword.set(false)
+      });
   }
 
   private loadProfile() {

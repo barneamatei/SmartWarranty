@@ -60,4 +60,15 @@ public class AuthController : ControllerBase
         var result = await _authService.GetCurrentUserAsync(User);
         return Ok(result);
     }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
+    {
+        await _authService.ChangePasswordAsync(User, dto);
+        return NoContent();
+    }
 }

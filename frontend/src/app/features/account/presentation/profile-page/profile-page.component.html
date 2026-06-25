@@ -52,5 +52,56 @@
         </mat-form-field>
       </form>
     </mat-card>
+
+    <mat-card appearance="outlined" class="profile-card">
+      <div class="panel-header">
+        <div>
+          <span class="form-kicker">Security</span>
+          <h2>Schimba parola</h2>
+        </div>
+        <button mat-flat-button type="button" (click)="changePassword()" [disabled]="changingPassword()">
+          Update password
+        </button>
+      </div>
+
+      <form [formGroup]="passwordForm" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Parola curenta</mat-label>
+          <input matInput type="password" formControlName="currentPassword" autocomplete="current-password" />
+          @if (passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.hasError('required')) {
+            <mat-error>Parola curenta este obligatorie.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Parola noua</mat-label>
+          <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
+          @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('required')) {
+            <mat-error>Parola noua este obligatorie.</mat-error>
+          }
+          @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('pattern')) {
+            <mat-error>Minim 8 caractere, o litera mare, o cifra si un caracter special.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirma parola noua</mat-label>
+          <input matInput type="password" formControlName="confirmNewPassword" autocomplete="new-password" />
+          @if (
+            passwordForm.controls.confirmNewPassword.touched &&
+            passwordForm.controls.confirmNewPassword.hasError('required')
+          ) {
+            <mat-error>Confirmarea parolei este obligatorie.</mat-error>
+          }
+          @if (
+            passwordForm.controls.confirmNewPassword.touched &&
+            passwordForm.hasError('passwordMismatch') &&
+            !passwordForm.controls.confirmNewPassword.hasError('required')
+          ) {
+            <mat-error>Parolele nu coincid.</mat-error>
+          }
+        </mat-form-field>
+      </form>
+    </mat-card>
   }
 </section>

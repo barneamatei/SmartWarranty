@@ -143,6 +143,24 @@ public class AuthService
         return await MapProfileAsync(user);
     }
 
+    public async Task ChangePasswordAsync(ClaimsPrincipal principal, ChangePasswordRequestDto dto)
+    {
+        if (dto.NewPassword != dto.ConfirmNewPassword)
+            throw new DomainException("New password confirmation does not match.");
+
+        var userIdValue = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+            throw new DomainException("Authenticated user is invalid.");
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null || !user.IsActive)
+            throw new DomainException("Authenticated user not found.");
+
+        var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+        if (!result.Succeeded)
+            throw new DomainException(string.Join(" ", result.Errors.Select(x => x.Description)));
+    }
+
     private async Task<AuthResponseDto> GenerateAuthResponseAsync(ApplicationUser user, CancellationToken cancellationToken)
     {
         var accessToken = await _jwtTokenGenerator.GenerateAccessTokenAsync(user, cancellationToken);

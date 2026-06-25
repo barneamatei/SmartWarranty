@@ -2,7 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import { apiConfig } from '../../../core/config/api.config';
-import { AuthResponse, LoginRequest, RefreshTokenRequest, RegisterRequest, UserProfile } from '../models/auth.models';
+import {
+  AuthResponse,
+  ChangePasswordRequest,
+  LoginRequest,
+  RefreshTokenRequest,
+  RegisterRequest,
+  UserProfile
+} from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
@@ -23,6 +30,10 @@ export class AuthApiService {
 
   me() {
     return this.http.get<UserProfile>(`${this.authUrl}/me`);
+  }
+
+  changePassword(payload: ChangePasswordRequest) {
+    return this.http.post<void>(`${this.authUrl}/change-password`, payload);
   }
 
   logout(refreshToken: string) {

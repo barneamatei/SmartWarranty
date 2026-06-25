@@ -1,0 +1,6 @@
+@IdentityManagement.Controller_HostAddress = http://localhost:5119
+
+GET {{IdentityManagement.Controller_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -8,6 +8,8 @@ public interface ICategoryDao
 
     Task<IEnumerable<Category>> GetAllAsync();
 
+    Task<IEnumerable<Category>> GetByUserIdAsync(Guid userId);
+
     Task<Category> AddAsync(Category category);
 
     Task<Category> UpdateAsync(Category category);

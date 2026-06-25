@@ -4,6 +4,8 @@ namespace UserManagement.Domain.DTOs;
 
 public class CreateUserDto
 {
+    public Guid? UserId { get; set; }
+
     [Required]
     [EmailAddress]
     [StringLength(256)]

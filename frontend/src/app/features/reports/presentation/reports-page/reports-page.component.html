@@ -1,0 +1,33 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Documents and exports</span>
+    <h1>Rapoarte</h1>
+    <p>Exporta sumarul garantiilor in format PDF sau Excel.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca rapoartele...</div>
+  } @else {
+    <div class="report-grid">
+      <mat-card appearance="outlined" class="report-card">
+        <span>Portofoliu garantii</span>
+        <h2>{{ portfolioReport()?.title ?? 'Sumar garantii' }}</h2>
+        <p>{{ portfolioReport()?.recordCount ?? 0 }} randuri pregatite pentru export.</p>
+        <div class="actions">
+          <button mat-flat-button type="button" (click)="exportReport('portfolio', 'pdf')">Download PDF</button>
+          <button mat-stroked-button type="button" (click)="exportReport('portfolio', 'xlsx')">Download Excel</button>
+        </div>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="report-card warm">
+        <span>Garantii aproape de expirare</span>
+        <h2>{{ expiringReport()?.title ?? 'Garantii care expira curand' }}</h2>
+        <p>{{ expiringReport()?.recordCount ?? 0 }} garantii expira in urmatoarele 30 de zile.</p>
+        <div class="actions">
+          <button mat-flat-button type="button" (click)="exportReport('expiring-warranties', 'pdf')">Download PDF</button>
+          <button mat-stroked-button type="button" (click)="exportReport('expiring-warranties', 'xlsx')">Download Excel</button>
+        </div>
+      </mat-card>
+    </div>
+  }
+</section>

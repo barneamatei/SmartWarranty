@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+**/dist/
+**/.vs/
+**/.vscode/
+.git/
+.agents/
+.codex/
+.run-logs/
+*.user
+*.suo
+*.log

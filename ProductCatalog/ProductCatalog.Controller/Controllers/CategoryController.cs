@@ -8,9 +8,9 @@ namespace ProductCatalog.Controller.Controllers;
 [Route("api/[controller]")]
 public class CategoryController : ControllerBase
 {
-    private readonly ICategoryCatalogService _categoryCatalogService;
+    private readonly CategoryCatalogService _categoryCatalogService;
 
-    public CategoryController(ICategoryCatalogService categoryCatalogService)
+    public CategoryController(CategoryCatalogService categoryCatalogService)
     {
         _categoryCatalogService = categoryCatalogService ?? throw new ArgumentNullException(nameof(categoryCatalogService));
     }
@@ -23,7 +23,8 @@ public class CategoryController : ControllerBase
     {
         var categoryDto = await _categoryCatalogService.CreateCategoryAsync(
             request.Name,
-            request.Description);
+            request.Description,
+            request.UserId);
 
         return CreatedAtAction(nameof(GetCategoryById), new { id = categoryDto.CategoryId }, categoryDto);
     }
@@ -46,9 +47,9 @@ public class CategoryController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CategoryDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories([FromQuery] Guid? userId)
     {
-        var categoryDtos = await _categoryCatalogService.GetAllCategoriesAsync();
+        var categoryDtos = await _categoryCatalogService.GetAllCategoriesAsync(userId);
         return Ok(categoryDtos);
     }
 

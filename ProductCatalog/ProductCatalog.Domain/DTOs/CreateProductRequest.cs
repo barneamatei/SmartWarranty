@@ -18,5 +18,7 @@ public class CreateProductRequest
 
     [Required(ErrorMessage = "Category ID is required.")]
     public Guid CategoryId { get; set; }
+
+    public Guid? UserId { get; set; }
 }
 

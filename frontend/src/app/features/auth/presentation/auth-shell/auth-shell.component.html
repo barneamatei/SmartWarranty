@@ -1,0 +1,22 @@
+<section class="auth-shell">
+  <div class="hero-panel">
+    <h1>SmartWarranty Portal</h1>
+    <p>
+      Intrarea in platforma pentru utilizatori, administratori si echipele care gestioneaza
+      garantii, documente si rapoarte.
+    </p>
+
+    <div class="hero-actions">
+      <a mat-flat-button routerLink="/auth/login" routerLinkActive="active-link primary-action">
+        Login
+      </a>
+      <a mat-flat-button routerLink="/auth/register" routerLinkActive="active-link primary-action">
+        Register
+      </a>
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <router-outlet />
+  </div>
+</section>

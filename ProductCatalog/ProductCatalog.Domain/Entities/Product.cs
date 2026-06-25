@@ -12,6 +12,8 @@ public class Product
 
     public Guid CategoryId { get; private set; }
 
+    public Guid? UserId { get; private set; }
+
     public ProductStatus Status { get; private set; }
 
     protected Product()
@@ -21,13 +23,14 @@ public class Product
         Model = string.Empty;
     }
 
-    public Product(Guid productId, string name, string brand, string model, Guid categoryId)
+    public Product(Guid productId, string name, string brand, string model, Guid categoryId, Guid? userId = null)
     {
         ProductId = productId;
         Name = name;
         Brand = brand;
         Model = model;
         CategoryId = categoryId;
+        UserId = userId;
         Status = ProductStatus.Active;
     }
 

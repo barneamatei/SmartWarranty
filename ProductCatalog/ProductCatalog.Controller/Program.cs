@@ -17,8 +17,8 @@ builder.Services.AddDbContext<ProductCatalogDbContext>(options =>
 builder.Services.AddScoped<IProductDao, ProductRepository>();
 builder.Services.AddScoped<ICategoryDao, CategoryRepository>();
 
-builder.Services.AddScoped<IProductCatalogService, ProductCatalogService>();
-builder.Services.AddScoped<ICategoryCatalogService, CategoryCatalogService>();
+builder.Services.AddScoped<ProductCatalogService>();
+builder.Services.AddScoped<CategoryCatalogService>();
 
 var app = builder.Build();
 

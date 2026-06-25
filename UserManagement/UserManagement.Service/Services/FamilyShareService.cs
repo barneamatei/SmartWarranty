@@ -5,7 +5,7 @@ using UserManagement.Domain.Entities;
 
 namespace UserManagement.Service.Services;
 
-public class FamilyShareService : IFamilyShareService
+public class FamilyShareService
 {
     private readonly IFamilyShareDao _familyShareDao;
     private readonly IUserDao _userDao;

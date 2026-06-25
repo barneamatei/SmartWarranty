@@ -47,6 +47,9 @@ public class ProductCatalogDbContext : DbContext
                 .HasColumnName("CategoryId")
                 .IsRequired();
 
+            entity.Property(e => e.UserId)
+                .HasColumnName("UserId");
+
             entity.Property(e => e.Status)
                 .HasColumnName("Status")
                 .HasConversion<int>()
@@ -76,6 +79,11 @@ public class ProductCatalogDbContext : DbContext
             entity.Property(e => e.Description)
                 .HasColumnName("Description")
                 .HasMaxLength(500);
+
+            entity.Property(e => e.UserId)
+                .HasColumnName("UserId");
+
+            entity.HasIndex(e => e.UserId);
         });
     }
 }

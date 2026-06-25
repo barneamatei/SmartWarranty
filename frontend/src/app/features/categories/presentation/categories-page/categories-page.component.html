@@ -1,0 +1,72 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Catalog setup</span>
+    <h1>Categorii</h1>
+    <p>Administreaza categoriile disponibile pentru produsele din sistem.</p>
+  </header>
+
+  <mat-card appearance="outlined" class="create-panel">
+    <div class="panel-header">
+      <div>
+        <span class="form-kicker">New category</span>
+        <h2>Adauga categorie</h2>
+      </div>
+      <button mat-flat-button type="button" (click)="createCategory()" [disabled]="saving()">Create category</button>
+    </div>
+
+    <form [formGroup]="createForm" class="create-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Nume</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descriere</mat-label>
+        <input matInput formControlName="description" />
+      </mat-form-field>
+    </form>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca categoriile...</div>
+  } @else {
+    <div class="summary-strip">
+      <strong>{{ categoriesCount() }}</strong><span>categorii active</span>
+    </div>
+
+    <div class="card-grid">
+      @for (category of categories(); track category.categoryId) {
+        <mat-card appearance="outlined" class="category-card">
+          @if (editingCategoryId() === category.categoryId) {
+            <form [formGroup]="editForm" class="edit-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Nume</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Descriere</mat-label>
+                <input matInput formControlName="description" />
+              </mat-form-field>
+
+              <div class="card-actions">
+                <button mat-flat-button type="button" (click)="saveCategory(category)" [disabled]="saving()">Save</button>
+                <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+              </div>
+            </form>
+          } @else {
+            <span>Catalog item</span>
+            <h2>{{ category.name }}</h2>
+            <p>{{ category.description || 'Fara descriere.' }}</p>
+            <div class="card-actions">
+              <button mat-stroked-button type="button" (click)="startEdit(category)">Edit</button>
+              <button mat-flat-button type="button" class="danger" (click)="deleteCategory(category)" [disabled]="saving()">Delete</button>
+            </div>
+          }
+        </mat-card>
+      } @empty {
+        <p class="empty-state">Nu exista categorii. Creeaza prima categorie pentru produsele noi.</p>
+      }
+    </div>
+  }
+</section>

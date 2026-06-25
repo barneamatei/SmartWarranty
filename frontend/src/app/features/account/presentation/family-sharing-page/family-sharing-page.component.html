@@ -1,0 +1,102 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Shared access</span>
+    <h1>Family Sharing</h1>
+    <p>Ofera acces altor membri si vezi ce partajari ai primit in cont.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca family sharing...</div>
+  } @else {
+    <mat-card appearance="outlined" class="create-panel">
+      <div class="panel-header">
+        <div>
+          <span class="form-kicker">New share</span>
+          <h2>Adauga membru</h2>
+        </div>
+        <button mat-flat-button type="button" (click)="createShare()" [disabled]="saving() || availableMembers().length === 0">
+          Create share
+        </button>
+      </div>
+
+      <form [formGroup]="createForm" class="create-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Email membru</mat-label>
+          <mat-select formControlName="memberUserId">
+            @for (user of availableMembers(); track user.userId) {
+              <mat-option [value]="user.userId">{{ user.email }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Permissions</mat-label>
+          <input matInput type="number" formControlName="permissions" />
+        </mat-form-field>
+      </form>
+    </mat-card>
+
+    <div class="summary-strip">
+      <strong>{{ ownedShares().length }}</strong><span>partajari oferite</span>
+      <strong>{{ memberShares().length }}</strong><span>partajari primite</span>
+    </div>
+
+    <div class="card-grid">
+      <mat-card appearance="outlined" class="share-card">
+        <span class="section-kicker">Owned shares</span>
+        <h2>Acces oferit de tine</h2>
+
+        @for (share of ownedShares(); track share.shareId) {
+          <article class="share-item">
+            <div class="share-top">
+              <div>
+                <strong>{{ userEmailLabel(share.memberUserId) }}</strong>
+                <small>{{ userLabel(share.memberUserId) }}</small>
+              </div>
+              <span>Permissions {{ share.permissions }}</span>
+            </div>
+
+            @if (editingShareId() === share.shareId) {
+              <form [formGroup]="editForm" class="edit-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Permissions</mat-label>
+                  <input matInput type="number" formControlName="permissions" />
+                </mat-form-field>
+                <div class="row-actions">
+                  <button mat-flat-button type="button" (click)="saveShare(share)" [disabled]="saving()">Save</button>
+                  <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </form>
+            } @else {
+              <div class="row-actions">
+                <button mat-stroked-button type="button" (click)="startEdit(share)">Edit</button>
+                <button mat-flat-button type="button" class="danger" (click)="deleteShare(share)" [disabled]="saving()">Delete</button>
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="empty-state">Nu ai oferit inca acces altor membri.</p>
+        }
+      </mat-card>
+
+      <mat-card appearance="outlined" class="share-card">
+        <span class="section-kicker">Incoming shares</span>
+        <h2>Acces primit</h2>
+
+        @for (share of memberShares(); track share.shareId) {
+          <article class="share-item">
+            <div class="share-top">
+              <div>
+                <strong>{{ userEmailLabel(share.ownerUserId) }}</strong>
+                <small>{{ userLabel(share.ownerUserId) }}</small>
+              </div>
+              <span>Permissions {{ share.permissions }}</span>
+            </div>
+          </article>
+        } @empty {
+          <p class="empty-state">Nu ai nicio partajare primita.</p>
+        }
+      </mat-card>
+    </div>
+  }
+</section>

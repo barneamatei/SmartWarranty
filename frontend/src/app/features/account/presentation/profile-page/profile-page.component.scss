@@ -1,0 +1,56 @@
+@use '../../../../shared/page-styles' as page;
+
+:host {
+  display: block;
+}
+
+@include page.workspace-page;
+
+.profile-card {
+  padding: 1.2rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header h2,
+.form-kicker {
+  margin: 0;
+}
+
+.form-kicker {
+  display: block;
+  color: #607584;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summary-link {
+  color: #123458;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 720px) {
+  .panel-header,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -4,7 +4,7 @@ using ProductCatalog.Domain.Entities;
 
 namespace ProductCatalog.Service;
 
-public class CategoryCatalogService : ICategoryCatalogService
+public class CategoryCatalogService
 {
     private readonly ICategoryDao _categoryRepository;
     private readonly IProductDao _productRepository;
@@ -17,13 +17,13 @@ public class CategoryCatalogService : ICategoryCatalogService
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
     }
 
-    public async Task<CategoryDto> CreateCategoryAsync(string name, string description)
+    public async Task<CategoryDto> CreateCategoryAsync(string name, string description, Guid? userId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
 
         var categoryId = Guid.NewGuid();
-        var category = new Category(categoryId, name, description ?? string.Empty);
+        var category = new Category(categoryId, name, description ?? string.Empty, userId);
 
         var savedCategory = await _categoryRepository.AddAsync(category);
         return MapToDto(savedCategory);
@@ -56,9 +56,12 @@ public class CategoryCatalogService : ICategoryCatalogService
         return MapToDto(category);
     }
 
-    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync(Guid? userId = null)
     {
-        var categories = await _categoryRepository.GetAllAsync();
+        var categories = userId.HasValue
+            ? await _categoryRepository.GetByUserIdAsync(userId.Value)
+            : await _categoryRepository.GetAllAsync();
+
         return categories.Select(MapToDto);
     }
 
@@ -81,7 +84,8 @@ public class CategoryCatalogService : ICategoryCatalogService
         {
             CategoryId = category.CategoryId,
             Name = category.Name,
-            Description = category.Description
+            Description = category.Description,
+            UserId = category.UserId
         };
     }
 }

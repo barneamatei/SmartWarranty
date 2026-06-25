@@ -1,0 +1,51 @@
+@use '../../../../shared/page-styles' as page;
+
+:host {
+  display: block;
+}
+
+@include page.workspace-page;
+
+.subscription-card {
+  padding: 1.2rem;
+}
+
+.panel-header,
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.panel-header {
+  margin-bottom: 1rem;
+}
+
+.form-kicker {
+  display: block;
+  color: #607584;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  margin-bottom: 0.25rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 720px) {
+  .panel-header,
+  .header-actions,
+  .form-grid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}

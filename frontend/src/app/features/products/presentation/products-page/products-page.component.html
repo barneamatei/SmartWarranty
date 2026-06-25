@@ -1,0 +1,108 @@
+<section class="page">
+  <header class="page-hero">
+    <span>My warranty products</span>
+    <h1>Produsele mele</h1>
+    <p>Produsele care apar in garantiile contului tau.</p>
+  </header>
+
+  <mat-card appearance="outlined" class="create-panel">
+    <div class="panel-header">
+      <div>
+        <span class="form-kicker">New product</span>
+        <h2>Adauga produs</h2>
+      </div>
+      <div class="panel-actions">
+        <a class="helper-link" routerLink="/categories">Manage categories</a>
+        <button mat-flat-button type="button" (click)="createProduct()" [disabled]="saving() || categories().length === 0">Create product</button>
+      </div>
+    </div>
+
+    <form [formGroup]="createForm" class="create-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Nume</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Brand</mat-label>
+        <input matInput formControlName="brand" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Model</mat-label>
+        <input matInput formControlName="model" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Categorie</mat-label>
+        <mat-select formControlName="categoryId">
+          @for (category of categories(); track category.categoryId) {
+            <mat-option [value]="category.categoryId">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
+
+    @if (categories().length === 0) {
+      <p class="form-hint">Nu exista categorii disponibile momentan. Verifica serviciul de produse si incearca din nou.</p>
+    }
+  </mat-card>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+  } @else {
+    <div class="summary-strip">
+      <strong>{{ products().length }}</strong>
+      <span>produse totale</span>
+      <strong>{{ activeProducts() }}</strong>
+      <span>active</span>
+    </div>
+
+    @if (products().length === 0) {
+      <mat-card appearance="outlined" class="empty-card">
+        <span class="empty-kicker">Nothing here yet</span>
+        <h2>Nu ai inca produse in portofoliu</h2>
+        <p>Creeaza un produs nou, apoi il poti lega imediat de o garantie si il vei vedea in dashboard.</p>
+      </mat-card>
+    } @else {
+      <div class="card-grid">
+        @for (product of products(); track product.productId) {
+          <mat-card appearance="outlined" class="product-card">
+            @if (editingProductId() === product.productId) {
+              <form [formGroup]="editForm" class="edit-form">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nume</mat-label>
+                  <input matInput formControlName="name" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Brand</mat-label>
+                  <input matInput formControlName="brand" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Model</mat-label>
+                  <input matInput formControlName="model" />
+                </mat-form-field>
+                <div class="card-actions">
+                  <button mat-flat-button type="button" (click)="saveProduct(product)" [disabled]="saving()">Save</button>
+                  <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </form>
+            } @else {
+              <span>{{ product.brand }}</span>
+              <h2>{{ product.name }}</h2>
+              <p>{{ product.model }}</p>
+              <small>{{ isOwnProduct(product) ? product.status : 'Shared' }}</small>
+              @if (isOwnProduct(product)) {
+                <div class="card-actions">
+                  <button mat-stroked-button type="button" (click)="startEdit(product)">Edit</button>
+                  <button mat-flat-button type="button" class="danger" (click)="deleteProduct(product)" [disabled]="saving()">Delete</button>
+                </div>
+              }
+            }
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</section>

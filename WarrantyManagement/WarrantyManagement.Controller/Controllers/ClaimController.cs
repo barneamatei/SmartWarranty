@@ -8,9 +8,9 @@ namespace WarrantyManagement.Controller.Controllers;
 [Route("api/[controller]")]
 public class ClaimController : ControllerBase
 {
-    private readonly IClaimService _claimService;
+    private readonly ClaimService _claimService;
 
-    public ClaimController(IClaimService claimService)
+    public ClaimController(ClaimService claimService)
     {
         _claimService = claimService ?? throw new ArgumentNullException(nameof(claimService));
     }

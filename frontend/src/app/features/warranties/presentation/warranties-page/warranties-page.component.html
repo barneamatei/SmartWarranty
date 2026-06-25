@@ -1,0 +1,187 @@
+<section class="page">
+  <header class="page-hero">
+    <span>My coverage</span>
+    <h1>Garantiile mele</h1>
+    <p>Toate garantiile asociate contului tau.</p>
+  </header>
+
+  <mat-card appearance="outlined" class="create-panel">
+    <div class="panel-header">
+      <div>
+        <span class="form-kicker">New warranty</span>
+        <h2>Adauga garantie</h2>
+      </div>
+      <button mat-flat-button type="button" (click)="createWarranty()" [disabled]="saving() || products().length === 0">
+        Create warranty
+      </button>
+    </div>
+
+    <form [formGroup]="createForm" class="create-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Produs</mat-label>
+        <mat-select formControlName="productId">
+          @for (product of products(); track product.productId) {
+            <mat-option [value]="product.productId">{{ productLabel(product.productId) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Data cumpararii</mat-label>
+        <input matInput type="date" formControlName="purchaseDate" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Durata (luni)</mat-label>
+        <input matInput type="number" formControlName="durationMonths" />
+      </mat-form-field>
+    </form>
+
+    @if (products().length === 0) {
+      <p class="form-hint">Adauga mai intai un produs ca sa poti crea o garantie.</p>
+    }
+  </mat-card>
+
+  @if (loading()) {
+    <div class="skeleton-list">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="skeleton-row"></div>
+      }
+    </div>
+  } @else {
+    <div class="summary-strip">
+      <strong>{{ warranties().length }}</strong><span>garantii totale</span>
+      <strong>{{ activeCount() }}</strong><span>active</span>
+      <strong>{{ claimedCount() }}</strong><span>cu claim</span>
+    </div>
+
+    @if (warranties().length === 0) {
+      <mat-card appearance="outlined" class="empty-card">
+        <span class="empty-kicker">No warranties yet</span>
+        <h2>Nu ai nicio garantie in cont</h2>
+        <p>Adauga prima garantie ca sa poti urmari expirarea, claim-urile si rapoartele personale.</p>
+      </mat-card>
+    } @else {
+      <div class="warranty-list">
+        @for (warranty of warranties(); track warranty.warrantyId) {
+          <mat-card appearance="outlined" class="warranty-card">
+            @if (editingWarrantyId() === warranty.warrantyId) {
+              <form [formGroup]="editForm" class="edit-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Produs</mat-label>
+                  <mat-select formControlName="productId">
+                    @for (product of products(); track product.productId) {
+                      <mat-option [value]="product.productId">{{ productLabel(product.productId) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Data cumpararii</mat-label>
+                  <input matInput type="date" formControlName="purchaseDate" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Durata (luni)</mat-label>
+                  <input matInput type="number" formControlName="durationMonths" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status">
+                    @for (status of statuses; track status) {
+                      <mat-option [value]="status">{{ status }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <div class="row-actions">
+                  <button mat-flat-button type="button" (click)="saveWarranty(warranty)" [disabled]="saving()">Save</button>
+                  <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </form>
+            } @else {
+              <div class="card-top">
+                <div>
+                  <span class="card-kicker">Warranty item</span>
+                  <h2>{{ productLabel(warranty.productId) }}</h2>
+                </div>
+                <span class="status-pill" [ngClass]="statusClass(warranty.status)">
+                  {{ isOwnWarranty(warranty) ? warranty.status : 'Shared' }}
+                </span>
+              </div>
+
+              <div class="meta-grid">
+                <div>
+                  <small>Cumparata</small>
+                  <strong>{{ warranty.purchaseDate | date: 'dd.MM.yyyy' }}</strong>
+                </div>
+                <div>
+                  <small>Expira</small>
+                  <strong>{{ warranty.expiryDate | date: 'dd.MM.yyyy' }}</strong>
+                </div>
+                <div>
+                  <small>Durata</small>
+                  <strong>{{ warranty.durationMonths }} luni</strong>
+                </div>
+              </div>
+
+              @if (isOwnWarranty(warranty)) {
+                <div class="row-actions view-actions">
+                  <button mat-stroked-button type="button" (click)="startEdit(warranty)">Edit</button>
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="openClaimForm(warranty.warrantyId)"
+                    [disabled]="claimFormWarrantyId() === warranty.warrantyId"
+                  >
+                    New claim
+                  </button>
+                  <button mat-flat-button type="button" class="danger" (click)="deleteWarranty(warranty)" [disabled]="saving()">Delete</button>
+                </div>
+              }
+
+              @if (claimFormWarrantyId() === warranty.warrantyId) {
+                <section class="claim-panel">
+                  <div class="claim-header">
+                    <div>
+                      <span class="form-kicker">Warranty claim</span>
+                      <h3>Creeaza claim</h3>
+                    </div>
+                    <button mat-stroked-button type="button" (click)="closeClaimForm()">Cancel</button>
+                  </div>
+
+                  <form [formGroup]="claimForm" class="claim-form">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Descriere problema</mat-label>
+                      <textarea matInput rows="4" formControlName="description"></textarea>
+                    </mat-form-field>
+                    <button mat-flat-button type="button" (click)="createClaim(warranty)" [disabled]="saving()">Trimite claim</button>
+                  </form>
+
+                  @if (loadingClaims()[warranty.warrantyId]) {
+                    <div class="claims-loading"><mat-spinner diameter="20" /> Se incarca istoricul claim-urilor...</div>
+                  } @else if (claimsForWarranty(warranty.warrantyId).length === 0) {
+                    <p class="claims-empty">Nu exista inca claim-uri pentru aceasta garantie.</p>
+                  } @else {
+                    <div class="claims-list">
+                      @for (claim of claimsForWarranty(warranty.warrantyId); track claim.claimId) {
+                        <article class="claim-item">
+                          <div>
+                            <strong>{{ claim.status }}</strong>
+                            <span>{{ claim.openedAt | date: 'dd.MM.yyyy' }}</span>
+                          </div>
+                          <p>{{ claim.description }}</p>
+                        </article>
+                      }
+                    </div>
+                  }
+                </section>
+              }
+            }
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</section>

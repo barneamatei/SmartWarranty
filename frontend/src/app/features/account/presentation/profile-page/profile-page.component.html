@@ -1,0 +1,56 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Account settings</span>
+    <h1>Profil</h1>
+    <p>Editeaza datele de profil folosite pentru garantii, notificari si partajare.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca profilul...</div>
+  } @else {
+    @if (userRecord()?.subscription; as subscription) {
+      <div class="summary-strip">
+        <strong>{{ subscription.planType }}</strong><span>plan activ</span>
+        <strong>{{ subscription.isPremium ? 'Premium' : 'Standard' }}</strong><span>nivel cont</span>
+        <a class="summary-link" routerLink="/subscriptions">Manage subscription</a>
+      </div>
+    }
+
+    <mat-card appearance="outlined" class="profile-card">
+      <div class="panel-header">
+        <div>
+          <span class="form-kicker">{{ profileMissing() ? 'Create profile' : 'Update profile' }}</span>
+          <h2>{{ profileMissing() ? 'Completeaza profilul' : 'Datele contului' }}</h2>
+        </div>
+        <button mat-flat-button type="button" (click)="saveProfile()" [disabled]="saving()">Save profile</button>
+      </div>
+
+      <form [formGroup]="profileForm" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nume</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Telefon</mat-label>
+          <input matInput formControlName="phone" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Limba</mat-label>
+          <input matInput formControlName="language" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Preferinte</mat-label>
+          <textarea matInput rows="4" formControlName="preferences"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-card>
+  }
+</section>

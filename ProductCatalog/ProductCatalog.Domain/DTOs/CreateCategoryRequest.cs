@@ -10,5 +10,7 @@ public class CreateCategoryRequest
 
     [StringLength(500, ErrorMessage = "Category description must not exceed 500 characters.")]
     public string Description { get; set; } = string.Empty;
+
+    public Guid? UserId { get; set; }
 }
 

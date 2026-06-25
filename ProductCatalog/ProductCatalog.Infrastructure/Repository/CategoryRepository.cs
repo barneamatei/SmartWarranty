@@ -26,6 +26,13 @@ public class CategoryRepository : ICategoryDao
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Category>> GetByUserIdAsync(Guid userId)
+    {
+        return await _context.Categories
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+    }
+
     public async Task<Category> AddAsync(Category category)
     {
         await _context.Categories.AddAsync(category);

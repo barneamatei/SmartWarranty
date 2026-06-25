@@ -1,0 +1,70 @@
+<mat-card class="auth-card">
+  <div class="card-copy">
+    <span class="eyebrow">Login</span>
+    <h2>Intra in cont</h2>
+    <p>Foloseste credentialele tale pentru a continua in SmartWarranty.</p>
+  </div>
+
+  @if (authViewModel.errorMessage(); as errorMessage) {
+    <div class="status-box error-box">{{ errorMessage }}</div>
+  }
+
+  @if (authViewModel.successMessage(); as successMessage) {
+    <div class="status-box success-box">{{ successMessage }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" autocomplete="email" />
+      <mat-icon matSuffix>mail</mat-icon>
+      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        <mat-error>Email-ul este obligatoriu.</mat-error>
+      }
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <mat-error>Introdu o adresa de email valida.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Parola</mat-label>
+      <input
+        matInput
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+      />
+      <mat-icon matSuffix>lock</mat-icon>
+      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+        <mat-error>Parola este obligatorie.</mat-error>
+      }
+      @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+        <mat-error>Parola trebuie sa aiba cel putin 6 caractere.</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" class="submit-button" [disabled]="authViewModel.isLoading()">
+      @if (authViewModel.isLoading()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <span>Conecteaza-ma</span>
+      }
+    </button>
+  </form>
+
+  @if (authViewModel.isAuthenticated()) {
+    <div class="session-box">
+      <div>
+        <strong>Sesiune activa</strong>
+        <p>Autentificat ca {{ userLabel() }}.</p>
+      </div>
+
+      <button mat-button type="button" (click)="clearSession()">Iesi din sesiune</button>
+    </div>
+  }
+
+  <p class="switch-link">
+    Nu ai cont?
+    <a routerLink="/auth/register">Creeaza unul acum</a>
+  </p>
+</mat-card>

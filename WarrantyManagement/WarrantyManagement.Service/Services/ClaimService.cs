@@ -5,15 +5,20 @@ using WarrantyManagement.Service.Exceptions;
 
 namespace WarrantyManagement.Service.Services;
 
-public class ClaimService : IClaimService
+public class ClaimService
 {
     private readonly IClaimDao _claimDao;
     private readonly IWarrantyDao _warrantyDao;
+    private readonly INotificationManagementClient _notificationManagementClient;
 
-    public ClaimService(IClaimDao claimDao, IWarrantyDao warrantyDao)
+    public ClaimService(
+        IClaimDao claimDao,
+        IWarrantyDao warrantyDao,
+        INotificationManagementClient notificationManagementClient)
     {
         _claimDao = claimDao ?? throw new ArgumentNullException(nameof(claimDao));
         _warrantyDao = warrantyDao ?? throw new ArgumentNullException(nameof(warrantyDao));
+        _notificationManagementClient = notificationManagementClient ?? throw new ArgumentNullException(nameof(notificationManagementClient));
     }
 
     public async Task<ClaimResponseDto> CreateAsync(CreateClaimDto dto, CancellationToken cancellationToken = default)
@@ -34,6 +39,7 @@ public class ClaimService : IClaimService
 
         warranty.MarkClaimed();
         await _warrantyDao.UpdateAsync(warranty, cancellationToken);
+        await TryCreateClaimNotificationAsync(warranty.UserId, savedClaim, "Claim opened", cancellationToken);
 
         return MapToResponse(savedClaim);
     }
@@ -75,6 +81,9 @@ public class ClaimService : IClaimService
         claim.UpdateStatus(parsedStatus);
         var updatedClaim = await _claimDao.UpdateAsync(claim, cancellationToken);
         await RefreshWarrantyStatusAsync(updatedClaim.WarrantyId, parsedStatus, cancellationToken);
+        var warranty = await _warrantyDao.GetByIdAsync(updatedClaim.WarrantyId, cancellationToken);
+        if (warranty != null)
+            await TryCreateClaimNotificationAsync(warranty.UserId, updatedClaim, $"Claim status updated to {updatedClaim.Status}", cancellationToken);
         return MapToResponse(updatedClaim);
     }
 
@@ -89,6 +98,9 @@ public class ClaimService : IClaimService
         claim.Close();
         var updatedClaim = await _claimDao.UpdateAsync(claim, cancellationToken);
         await RefreshWarrantyStatusAsync(updatedClaim.WarrantyId, ClaimStatus.Closed, cancellationToken);
+        var warranty = await _warrantyDao.GetByIdAsync(updatedClaim.WarrantyId, cancellationToken);
+        if (warranty != null)
+            await TryCreateClaimNotificationAsync(warranty.UserId, updatedClaim, "Claim closed", cancellationToken);
         return MapToResponse(updatedClaim);
     }
 
@@ -117,5 +129,24 @@ public class ClaimService : IClaimService
             ClosedAt = claim.ClosedAt,
             Description = claim.Description
         };
+    }
+
+    private async Task TryCreateClaimNotificationAsync(Guid userId, Claim claim, string title, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _notificationManagementClient.CreateNotificationAsync(
+                userId,
+                title,
+                $"Claim {claim.ClaimId} for warranty {claim.WarrantyId} is currently {claim.Status}.",
+                "ClaimUpdated",
+                "InApp",
+                $"{{\"claimId\":\"{claim.ClaimId}\",\"warrantyId\":\"{claim.WarrantyId}\",\"status\":\"{claim.Status}\"}}",
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _ = ex;
+        }
     }
 }

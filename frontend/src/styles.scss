@@ -1,0 +1,67 @@
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$cyan-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: '"Roboto", sans-serif',
+    density: 0,
+  ));
+}
+
+:root {
+  --app-surface: #f5fbfd;
+  --app-card-surface: rgba(255, 255, 255, 0.92);
+  --app-border: rgba(18, 52, 88, 0.08);
+}
+
+html {
+  min-height: 100%;
+  background: linear-gradient(180deg, #f6fbfd 0%, #eef6f8 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color-scheme: light;
+  min-height: 100%;
+  background-color: var(--app-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+}
+
+body,
+button,
+input,
+textarea {
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+mat-card {
+  background: var(--app-card-surface);
+  border: 1px solid var(--app-border);
+  backdrop-filter: blur(14px);
+}
+
+.snackbar-success .mat-mdc-snack-bar-label,
+.snackbar-success .mdc-button__label {
+  color: #effcf4 !important;
+}
+
+.snackbar-success {
+  --mdc-snackbar-container-color: #176b4d;
+}
+
+.snackbar-error .mat-mdc-snack-bar-label,
+.snackbar-error .mdc-button__label {
+  color: #fff4f1 !important;
+}
+
+.snackbar-error {
+  --mdc-snackbar-container-color: #a03e2f;
+}

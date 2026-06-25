@@ -8,9 +8,9 @@ namespace WarrantyManagement.Controller.Controllers;
 [Route("api/[controller]")]
 public class WarrantyController : ControllerBase
 {
-    private readonly IWarrantyService _warrantyService;
+    private readonly WarrantyService _warrantyService;
 
-    public WarrantyController(IWarrantyService warrantyService)
+    public WarrantyController(WarrantyService warrantyService)
     {
         _warrantyService = warrantyService ?? throw new ArgumentNullException(nameof(warrantyService));
     }
@@ -22,6 +22,25 @@ public class WarrantyController : ControllerBase
     {
         var warranty = await _warrantyService.CreateAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = warranty.WarrantyId }, warranty);
+    }
+
+    [HttpPost("from-document")]
+    [ProducesResponseType(typeof(WarrantyCreationFromDocumentResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<WarrantyCreationFromDocumentResponseDto>> CreateFromDocument([FromBody] CreateWarrantyFromDocumentDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _warrantyService.CreateFromDocumentAsync(dto, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = result.Warranty.WarrantyId }, result);
+    }
+
+    [HttpPost("from-analyzed-document/{documentId}")]
+    [ProducesResponseType(typeof(WarrantyCreationFromDocumentResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<WarrantyCreationFromDocumentResponseDto>> CreateFromAnalyzedDocument(Guid documentId, [FromBody] CreateWarrantyFromAnalyzedDocumentDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _warrantyService.CreateFromAnalyzedDocumentAsync(documentId, dto, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = result.Warranty.WarrantyId }, result);
     }
 
     [HttpGet("{id}")]

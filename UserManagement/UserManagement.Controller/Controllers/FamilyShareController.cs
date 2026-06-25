@@ -9,9 +9,9 @@ namespace UserManagement.Controller.Controllers;
 [Route("api/[controller]")]
 public class FamilyShareController : ControllerBase
 {
-    private readonly IFamilyShareService _familyShareService;
+    private readonly FamilyShareService _familyShareService;
 
-    public FamilyShareController(IFamilyShareService familyShareService)
+    public FamilyShareController(FamilyShareService familyShareService)
     {
         _familyShareService = familyShareService ?? throw new ArgumentNullException(nameof(familyShareService));
     }

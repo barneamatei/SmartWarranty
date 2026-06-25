@@ -9,9 +9,9 @@ namespace UserManagement.Controller.Controllers;
 [Route("api/[controller]")]
 public class SubscriptionController : ControllerBase
 {
-    private readonly ISubscriptionService _subscriptionService;
+    private readonly SubscriptionService _subscriptionService;
 
-    public SubscriptionController(ISubscriptionService subscriptionService)
+    public SubscriptionController(SubscriptionService subscriptionService)
     {
         _subscriptionService = subscriptionService ?? throw new ArgumentNullException(nameof(subscriptionService));
     }

@@ -1,0 +1,54 @@
+<section class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span>SW</span>
+      <div>
+        <strong>SmartWarranty</strong>
+        <small>Warranty portal</small>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+      @if (isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active-link">Admin</a>
+      }
+      <a routerLink="/profile" routerLinkActive="active-link">Profile</a>
+      <a routerLink="/subscriptions" routerLinkActive="active-link">Subscription</a>
+      @if (isPremium()) {
+        <a routerLink="/family-sharing" routerLinkActive="active-link">Family Sharing</a>
+      }
+      <a routerLink="/products" routerLinkActive="active-link">Products</a>
+      <a routerLink="/categories" routerLinkActive="active-link">Categories</a>
+      <a routerLink="/warranties" routerLinkActive="active-link">Warranties</a>
+      <a routerLink="/documents" routerLinkActive="active-link">Documents</a>
+      <a routerLink="/notifications" routerLinkActive="active-link">
+        <span>Notifications</span>
+        @if (unreadNotifications() > 0) {
+          <span class="nav-badge">{{ unreadNotifications() }}</span>
+        }
+      </a>
+      @if (isPremium()) {
+        <a routerLink="/reports" routerLinkActive="active-link">Reports</a>
+      }
+    </nav>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div>
+        <span>Logged in as</span>
+        <strong>{{ displayName() }}</strong>
+      </div>
+      @if (unreadNotifications() > 0) {
+        <div>
+          <span>Unread notifications</span>
+          <strong>{{ unreadNotifications() }}</strong>
+        </div>
+      }
+      <button mat-stroked-button type="button" (click)="logout()">Logout</button>
+    </header>
+
+    <router-outlet />
+  </main>
+</section>

@@ -79,9 +79,15 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Status");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserId");
+
                     b.HasKey("ProductId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products", (string)null);
                 });

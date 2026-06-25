@@ -26,6 +26,13 @@ public class ProductRepository : IProductDao
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Product>> GetByUserIdAsync(Guid userId)
+    {
+        return await _context.Products
+            .Where(p => p.UserId == userId)
+            .ToListAsync();
+    }
+
     public async Task<Product> AddAsync(Product product)
     {
         await _context.Products.AddAsync(product);

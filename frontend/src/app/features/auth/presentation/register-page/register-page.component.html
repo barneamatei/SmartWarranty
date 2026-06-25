@@ -1,0 +1,97 @@
+<mat-card class="auth-card">
+  <div class="card-copy">
+    <span class="eyebrow">Register</span>
+    <h2>Creeaza cont nou</h2>
+    <p>Completeaza datele de baza ca sa intri in ecosistemul SmartWarranty.</p>
+  </div>
+
+  @if (authViewModel.errorMessage(); as errorMessage) {
+    <div class="status-box error-box">{{ errorMessage }}</div>
+  }
+
+  @if (authViewModel.successMessage(); as successMessage) {
+    <div class="status-box success-box">{{ successMessage }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+    <div class="name-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Prenume</mat-label>
+        <input matInput formControlName="firstName" autocomplete="given-name" />
+        <mat-icon matSuffix>badge</mat-icon>
+        @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+          <mat-error>Prenumele este obligatoriu.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nume</mat-label>
+        <input matInput formControlName="lastName" autocomplete="family-name" />
+        <mat-icon matSuffix>id_card</mat-icon>
+        @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+          <mat-error>Numele este obligatoriu.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" autocomplete="email" />
+      <mat-icon matSuffix>mail</mat-icon>
+      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        <mat-error>Email-ul este obligatoriu.</mat-error>
+      }
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <mat-error>Introdu o adresa de email valida.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Parola</mat-label>
+      <input matInput type="password" formControlName="password" autocomplete="new-password" />
+      <mat-icon matSuffix>lock_person</mat-icon>
+      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+        <mat-error>Parola este obligatorie.</mat-error>
+      }
+      @if (form.controls.password.touched && form.controls.password.hasError('pattern')) {
+        <mat-error>
+          Parola trebuie sa aiba minim 8 caractere, o litera mare, o cifra si un caracter special.
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Confirma parola</mat-label>
+      <input
+        matInput
+        type="password"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+      />
+      <mat-icon matSuffix>verified_user</mat-icon>
+      @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
+        <mat-error>Confirmarea parolei este obligatorie.</mat-error>
+      }
+      @if (
+        form.controls.confirmPassword.touched &&
+        form.hasError('passwordMismatch') &&
+        !form.controls.confirmPassword.hasError('required')
+      ) {
+        <mat-error>Parolele nu coincid.</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" class="submit-button" [disabled]="authViewModel.isLoading()">
+      @if (authViewModel.isLoading()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <span>Creeaza contul</span>
+      }
+    </button>
+  </form>
+
+  <p class="switch-link">
+    Ai deja cont?
+    <a routerLink="/auth/login">Intoarce-te la login</a>
+  </p>
+</mat-card>

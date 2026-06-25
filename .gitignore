@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/*.lscache
+.run-logs/
+
+node_modules/
+dist/
+.angular/
+
+.vs/
+.idea/
+.vscode/
+
+*.user
+*.suo
+*.log
+*.tmp

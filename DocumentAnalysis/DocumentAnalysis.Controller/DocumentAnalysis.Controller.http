@@ -1,0 +1,6 @@
+@DocumentAnalysis.Controller_HostAddress = http://localhost:5291
+
+GET {{DocumentAnalysis.Controller_HostAddress}}/api/document
+Accept: application/json
+
+###

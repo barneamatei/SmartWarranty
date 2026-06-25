@@ -1,0 +1,174 @@
+<section class="admin-page">
+  <header class="page-hero">
+    <span>Admin console</span>
+    <h1>User management</h1>
+    <p>Administreaza profilurile, subscription-urile si accesul premium pentru utilizatorii din platforma.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-card">
+      <mat-spinner diameter="34" />
+      <span>Incarcam userii...</span>
+    </div>
+  } @else {
+    <div class="metric-grid">
+      <mat-card appearance="outlined" class="metric-card">
+        <span>Useri</span>
+        <strong>{{ users().length }}</strong>
+        <small>conturi in sistem</small>
+      </mat-card>
+      <mat-card appearance="outlined" class="metric-card">
+        <span>Activi</span>
+        <strong>{{ activeUsers() }}</strong>
+        <small>status active</small>
+      </mat-card>
+      <mat-card appearance="outlined" class="metric-card">
+        <span>Premium</span>
+        <strong>{{ premiumUsers() }}</strong>
+        <small>subscription premium</small>
+      </mat-card>
+    </div>
+
+    <div class="admin-layout">
+      <mat-card appearance="outlined" class="users-panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">Directory</span>
+            <h2>Useri</h2>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Cauta user</mat-label>
+          <input matInput [value]="query()" (input)="updateQuery($any($event.target).value)" />
+        </mat-form-field>
+
+        <div class="users-list">
+          @for (user of filteredUsers(); track user.userId) {
+            <button
+              type="button"
+              class="user-row"
+              [class.active]="selectedUserId() === user.userId"
+              (click)="selectUser(user.userId)"
+            >
+              <div>
+                <strong>{{ user.userProfile?.name || user.email }}</strong>
+                <span>{{ user.email }}</span>
+              </div>
+              <small [class.premium-pill]="user.subscription?.isPremium">
+                {{ user.subscription?.planType || 'No plan' }}
+              </small>
+            </button>
+          } @empty {
+            <p class="empty-state">Nu exista useri pentru filtrul curent.</p>
+          }
+        </div>
+      </mat-card>
+
+      <div class="details-stack">
+        @if (selectedUser(); as user) {
+          <mat-card appearance="outlined" class="detail-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-kicker">Profile</span>
+                <h2>{{ user.userProfile?.name || user.email }}</h2>
+              </div>
+              <span class="status-pill">{{ user.status }}</span>
+            </div>
+
+            <form [formGroup]="userForm" class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nume</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Telefon</mat-label>
+                <input matInput formControlName="phone" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Limba</mat-label>
+                <input matInput formControlName="language" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide-field">
+                <mat-label>Preferinte</mat-label>
+                <textarea matInput rows="3" formControlName="preferences"></textarea>
+              </mat-form-field>
+            </form>
+
+            <div class="actions-row">
+              <span>ID {{ user.userId }}</span>
+              <button mat-flat-button type="button" (click)="saveUser()" [disabled]="savingUser()">Salveaza user</button>
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="detail-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-kicker">Subscription</span>
+                <h2>{{ subscriptionMissing() ? 'Fara plan activ' : user.subscription?.planType }}</h2>
+              </div>
+              @if (user.subscription) {
+                <span class="status-pill">{{ user.subscription.isPremium ? 'Premium' : 'Standard' }}</span>
+              }
+            </div>
+
+            <form [formGroup]="subscriptionForm" class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Plan</mat-label>
+                <mat-select formControlName="planType">
+                  @for (plan of planOptions; track plan) {
+                    <mat-option [value]="plan">{{ plan }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Start</mat-label>
+                <input matInput type="date" formControlName="startDate" [readonly]="!subscriptionMissing()" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Final</mat-label>
+                <input matInput type="date" formControlName="endDate" />
+              </mat-form-field>
+            </form>
+
+            <div class="actions-row">
+              <span>
+                @if (user.subscription) {
+                  Valabil pana la {{ user.subscription.endDate | date: 'dd.MM.yyyy' }}
+                } @else {
+                  Creeaza un subscription pentru acest user.
+                }
+              </span>
+              <div class="button-group">
+                @if (user.subscription) {
+                  <button mat-stroked-button type="button" (click)="deleteSubscription()" [disabled]="savingSubscription()">
+                    Sterge
+                  </button>
+                }
+                <button mat-flat-button type="button" (click)="saveSubscription()" [disabled]="savingSubscription()">
+                  Salveaza plan
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        } @else {
+          <mat-card appearance="outlined" class="detail-card">
+            <span class="section-kicker">No selection</span>
+            <h2>Selecteaza un user</h2>
+            <p class="empty-state">Alege un user din lista pentru a-i edita profilul si subscription-ul.</p>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</section>

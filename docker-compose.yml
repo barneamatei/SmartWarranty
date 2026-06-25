@@ -1,0 +1,190 @@
+name: smartwarranty
+
+x-sql-connection: &sql-connection
+  DB_HOST: sqlserver
+  DB_USER: sa
+  DB_PASSWORD: "SmartWarranty2026!"
+
+x-dotnet-service: &dotnet-service
+  restart: unless-stopped
+  environment:
+    ASPNETCORE_ENVIRONMENT: Production
+    ASPNETCORE_URLS: http://+:8080
+  depends_on:
+    sqlserver:
+      condition: service_healthy
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: smartwarranty-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "SmartWarranty2026!"
+      MSSQL_PID: Express
+    ports:
+      - "14333:1433"
+    volumes:
+      - smartwarranty-sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  users:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: UserManagement/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__UserManagementDb: "Server=sqlserver,1433;Database=UserManagementDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+
+  identity:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: IdentityManagement/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__IdentityManagementDb: "Server=sqlserver,1433;Database=IdentityManagementDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ExternalServices__UserManagementBaseUrl: "http://users:8080/"
+      Jwt__Issuer: "IdentityManagement"
+      Jwt__Audience: "SmartWarrantyClients"
+      Jwt__SecretKey: "SmartWarranty.Identity.SecretKey.2026.Super.Long.And.Safe"
+      Jwt__AccessTokenMinutes: "60"
+      Jwt__RefreshTokenDays: "7"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      users:
+        condition: service_started
+
+  products:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: ProductCatalog/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__ProductCatalogDb: "Server=sqlserver,1433;Database=ProductCatalogDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+
+  notifications:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: NotificationManagement/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__NotificationManagementDb: "Server=sqlserver,1433;Database=NotificationManagementDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+
+  documents:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: DocumentAnalysis/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DocumentAnalysisDb: "Server=sqlserver,1433;Database=DocumentAnalysisDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      Tesseract__ExecutablePath: "tesseract"
+      Tesseract__TessDataPath: "/usr/share/tesseract-ocr/5/tessdata"
+      Tesseract__Language: "ron+eng"
+
+  warranties:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: WarrantyManagement/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__WarrantyManagementDb: "Server=sqlserver,1433;Database=WarrantyManagementDb;User Id=sa;Password=SmartWarranty2026!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ExternalServices__DocumentAnalysisBaseUrl: "http://documents:8080/"
+      ExternalServices__UserManagementBaseUrl: "http://users:8080/"
+      ExternalServices__ProductCatalogBaseUrl: "http://products:8080/"
+      ExternalServices__NotificationManagementBaseUrl: "http://notifications:8080/"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      users:
+        condition: service_started
+      products:
+        condition: service_started
+      notifications:
+        condition: service_started
+      documents:
+        condition: service_started
+
+  reports:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ReportsManagement/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ExternalServices__UserManagementBaseUrl: "http://users:8080/"
+      ExternalServices__WarrantyManagementBaseUrl: "http://warranties:8080/"
+      ExternalServices__ProductCatalogBaseUrl: "http://products:8080/"
+    depends_on:
+      users:
+        condition: service_started
+      warranties:
+        condition: service_started
+      products:
+        condition: service_started
+
+  gateway:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "5005:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: "http://identity:8080/"
+      ReverseProxy__Clusters__user-cluster__Destinations__destination1__Address: "http://users:8080/"
+      ReverseProxy__Clusters__product-cluster__Destinations__destination1__Address: "http://products:8080/"
+      ReverseProxy__Clusters__warranty-cluster__Destinations__destination1__Address: "http://warranties:8080/"
+      ReverseProxy__Clusters__notification-cluster__Destinations__destination1__Address: "http://notifications:8080/"
+      ReverseProxy__Clusters__document-cluster__Destinations__destination1__Address: "http://documents:8080/"
+      ReverseProxy__Clusters__reports-cluster__Destinations__destination1__Address: "http://reports:8080/"
+    depends_on:
+      identity:
+        condition: service_started
+      users:
+        condition: service_started
+      products:
+        condition: service_started
+      warranties:
+        condition: service_started
+      notifications:
+        condition: service_started
+      documents:
+        condition: service_started
+      reports:
+        condition: service_started
+
+  frontend:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      gateway:
+        condition: service_started
+
+volumes:
+  smartwarranty-sqlserver-data:

@@ -5,7 +5,7 @@ using UserManagement.Domain.Entities;
 
 namespace UserManagement.Service.Services;
 
-public class UserService : IUserService
+public class UserService
 {
     private readonly IUserDao _userDao;
 
@@ -23,7 +23,7 @@ public class UserService : IUserService
         if (existing != null)
             throw new DomainException($"User with email {dto.Email} already exists.");
 
-        var userId = Guid.NewGuid();
+        var userId = dto.UserId.GetValueOrDefault(Guid.NewGuid());
         var user = new User(userId, dto.Email, UserStatus.Active);
         var profile = new UserProfile(userId, dto.Name, dto.Phone, dto.Language, dto.Preferences);
         user.SetProfile(profile);

@@ -1,0 +1,53 @@
+<section class="page">
+  <header class="page-hero">
+    <span>My updates</span>
+    <h1>Notificari</h1>
+    <p>Actualizari despre garantiile si cererile tale.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca notificarile...</div>
+  } @else {
+    <div class="summary-strip">
+      <strong>{{ notifications().length }}</strong><span>notificari totale</span>
+      <strong>{{ unreadCount() }}</strong><span>necitite</span>
+    </div>
+
+    <div class="filter-row">
+      <button mat-stroked-button type="button" [class.active-filter]="filter() === 'all'" (click)="setFilter('all')">All</button>
+      <button mat-stroked-button type="button" [class.active-filter]="filter() === 'unread'" (click)="setFilter('unread')">
+        Unread
+      </button>
+    </div>
+
+    <div class="notification-grid">
+      @for (notification of visibleNotifications(); track notification.notificationId) {
+        <mat-card appearance="outlined" class="notification-card" [class.unread]="!notification.readAt">
+          <div class="notification-meta">
+            <span>{{ notification.type }}</span>
+            <small>{{ notification.createdAt | date: 'dd.MM.yyyy HH:mm' }}</small>
+          </div>
+          <h2>{{ notification.title }}</h2>
+          <p>{{ notification.message }}</p>
+          <div class="notification-footer">
+            <small>{{ notification.channel }} · {{ notification.status }}</small>
+            @if (!notification.readAt) {
+              <button
+                mat-flat-button
+                type="button"
+                (click)="markAsRead(notification.notificationId)"
+                [disabled]="pendingReadIds()[notification.notificationId]"
+              >
+                Mark as read
+              </button>
+            } @else {
+              <small>Citita</small>
+            }
+          </div>
+        </mat-card>
+      } @empty {
+        <p class="empty-state">Nu exista notificari pentru acest cont.</p>
+      }
+    </div>
+  }
+</section>

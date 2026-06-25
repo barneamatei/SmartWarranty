@@ -1,0 +1,140 @@
+﻿CONTURI DEMO SMARTWARRANTY
+Pregatite pentru prezentarea din 25.06.2026
+
+Frontend: http://localhost:4200
+API Gateway: http://localhost:5005
+
+Conturi de login:
+
+1. ADMIN
+   Email: admin@smartwarranty.local
+   Parola: Admin123!
+   UserId: 34785edf-7ff8-4314-91c6-fa079f5e14a4
+   Rol: Admin
+   Demo: Cont admin pentru panoul /admin
+
+2. PREMIUM
+   Email: ana.popescu@demo.local
+   Parola: Demo123!
+   UserId: 3a69d535-56b5-47f1-b052-a4ff3ba264bf
+   Rol: User
+   Demo: Produse Apple/DeLonghi, garantii active si expirate, ofera share lui Mihai, primeste share de la Elena
+
+3. PREMIUM
+   Email: mihai.ionescu@demo.local
+   Parola: Demo123!
+   UserId: 4c3734dd-925c-4548-a232-63af2f0d4220
+   Rol: User
+   Demo: Home office, electrocasnice, vede prin Family Share datele Anei, ofera share lui Vlad
+
+4. PREMIUM
+   Email: elena.marin@demo.local
+   Parola: Demo123!
+   UserId: 0c00a9da-4c90-434e-b375-b52db5079db0
+   Rol: User
+   Demo: Foto/travel, garantie cu claim activ, ofera share Anei
+
+5. FREE
+   Email: vlad.dumitru@demo.local
+   Parola: Demo123!
+   UserId: b4fbc904-3670-4785-a8c1-ef4c654297a3
+   Rol: User
+   Demo: Cont free pentru comparatie, primeste share de la Mihai
+
+6. ADMIN TEST
+   Email: admin@email.com
+   Parola: password
+   UserId: 2c92dea4-781d-4258-ac34-b73355a6c94a
+   Rol: Admin
+   Demo: Admin alternativ existent din seeder
+
+7. PREMIUM
+   Email: andrei.radu@demo.local
+   Parola: Demo123!
+   UserId: a1000000-0000-0000-0000-000000000001
+   Rol: User
+
+8. PREMIUM
+   Email: ioana.stan@demo.local
+   Parola: Demo123!
+   UserId: a1000000-0000-0000-0000-000000000002
+   Rol: User
+
+9. FREE
+   Email: cristian.enache@demo.local
+   Parola: Demo123!
+   UserId: a1000000-0000-0000-0000-000000000003
+   Rol: User
+
+10. PREMIUM
+    Email: maria.georgescu@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000004
+    Rol: User
+
+11. FREE
+    Email: alexandru.neagu@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000005
+    Rol: User
+
+12. PREMIUM
+    Email: raluca.pavel@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000006
+    Rol: User
+
+13. FREE
+    Email: sorin.tudor@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000007
+    Rol: User
+
+14. PREMIUM
+    Email: bianca.ilie@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000008
+    Rol: User
+
+15. PREMIUM
+    Email: daniel.matei@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000009
+    Rol: User
+
+16. FREE
+    Email: oana.dobre@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000010
+    Rol: User
+
+17. PREMIUM
+    Email: stefan.lazar@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000011
+    Rol: User
+
+18. FREE
+    Email: larisa.voicu@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000012
+    Rol: User
+
+19. PREMIUM
+    Email: bogdan.petrescu@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000013
+    Rol: User
+
+20. FREE
+    Email: irina.serban@demo.local
+    Parola: Demo123!
+    UserId: a1000000-0000-0000-0000-000000000014
+    Rol: User
+
+Date demo populate:
+- UserManagement: profile, subscriptions Premium/Free si Family Share
+- ProductCatalog: categorii personale per user si produse demo
+- WarrantyManagement: garantii active, expirate si garantie cu claim
+- NotificationManagement: notificari generate de garantii/claim-uri si notificari demo existente
+- DocumentAnalysis: documente/facturi analizate deja disponibile in baza

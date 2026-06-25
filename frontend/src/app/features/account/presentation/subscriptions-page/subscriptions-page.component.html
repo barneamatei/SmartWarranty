@@ -1,0 +1,52 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Billing and plans</span>
+    <h1>Subscription</h1>
+    <p>Gestioneaza planul activ al contului si perioada de valabilitate.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca subscription-ul...</div>
+  } @else {
+    <div class="summary-strip">
+      <strong>{{ subscription()?.planType ?? 'None' }}</strong><span>plan curent</span>
+      <strong>{{ subscription()?.isPremium ? 'Da' : 'Nu' }}</strong><span>premium</span>
+    </div>
+
+    <mat-card appearance="outlined" class="subscription-card">
+      <div class="panel-header">
+        <div>
+          <span class="form-kicker">{{ subscriptionMissing() ? 'New plan' : 'Current plan' }}</span>
+          <h2>{{ subscriptionMissing() ? 'Creeaza un subscription' : 'Actualizeaza subscription-ul' }}</h2>
+        </div>
+        <div class="header-actions">
+          @if (subscription()) {
+            <button mat-stroked-button type="button" (click)="deleteSubscription()" [disabled]="saving()">Delete</button>
+          }
+          <button mat-flat-button type="button" (click)="saveSubscription()" [disabled]="saving()">Save subscription</button>
+        </div>
+      </div>
+
+      <form [formGroup]="subscriptionForm" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Plan</mat-label>
+          <mat-select formControlName="planType">
+            @for (plan of planOptions; track plan) {
+              <mat-option [value]="plan">{{ plan }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start date</mat-label>
+          <input matInput type="date" formControlName="startDate" [readonly]="!subscriptionMissing()" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End date</mat-label>
+          <input matInput type="date" formControlName="endDate" />
+        </mat-form-field>
+      </form>
+    </mat-card>
+  }
+</section>

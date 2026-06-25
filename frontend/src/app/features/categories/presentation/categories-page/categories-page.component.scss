@@ -1,0 +1,70 @@
+@use '../../../../shared/page-styles' as page;
+
+:host {
+  display: block;
+}
+
+@include page.workspace-page;
+
+.create-panel {
+  padding: 1.2rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-kicker {
+  display: block;
+  color: #607584;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  margin-bottom: 0.25rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.category-card {
+  padding: 1rem;
+}
+
+.category-card h2 {
+  margin: 0.3rem 0;
+}
+
+.edit-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.danger {
+  background: #a03e2f;
+}
+
+@media (max-width: 720px) {
+  .panel-header,
+  .create-grid,
+  .card-actions {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}

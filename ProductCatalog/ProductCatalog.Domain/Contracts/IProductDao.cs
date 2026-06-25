@@ -8,6 +8,8 @@ public interface IProductDao
 
     Task<IEnumerable<Product>> GetAllAsync();
 
+    Task<IEnumerable<Product>> GetByUserIdAsync(Guid userId);
+
     Task<Product> AddAsync(Product product);
 
     Task<Product> UpdateAsync(Product product);

@@ -1,0 +1,91 @@
+.auth-card {
+  width: min(100%, 36rem);
+  padding: 2rem;
+  border-radius: 1.75rem;
+  box-shadow: 0 28px 60px rgba(18, 52, 88, 0.12);
+}
+
+.card-copy {
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: #1f6e8c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.card-copy p,
+.switch-link {
+  margin: 0.6rem 0 0;
+  color: #4d6472;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.name-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.submit-button {
+  min-height: 3.25rem;
+  border-radius: 999px;
+}
+
+.submit-button .mat-mdc-progress-spinner {
+  margin: 0 auto;
+}
+
+.status-box {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+}
+
+.error-box {
+  background: #fff0ef;
+  color: #9f2d24;
+}
+
+.success-box {
+  background: #eef9f1;
+  color: #1c6b39;
+}
+
+.switch-link {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.switch-link a {
+  color: #123458;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .name-row {
+    grid-template-columns: 1fr;
+  }
+}

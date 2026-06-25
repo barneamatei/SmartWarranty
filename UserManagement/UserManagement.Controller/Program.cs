@@ -27,9 +27,9 @@ builder.Services.AddScoped<IUserDao, UserRepository>();
 builder.Services.AddScoped<IFamilyShareDao, FamilyShareRepository>();
 builder.Services.AddScoped<ISubscriptionDao, SubscriptionRepository>();
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IFamilyShareService, FamilyShareService>();
-builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<FamilyShareService>();
+builder.Services.AddScoped<SubscriptionService>();
 
 var app = builder.Build();
 
@@ -65,7 +65,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<UserManagementDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    await DbInitializer.InitializeAsync(context);
 }
 
 app.Run();

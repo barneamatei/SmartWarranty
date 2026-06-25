@@ -1,0 +1,79 @@
+@use '../../../../shared/page-styles' as page;
+
+:host {
+  display: block;
+}
+
+@include page.workspace-page;
+
+.create-panel,
+.share-card {
+  padding: 1.2rem;
+}
+
+.panel-header,
+.share-top,
+.row-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.panel-header {
+  margin-bottom: 1rem;
+}
+
+.form-kicker,
+.section-kicker {
+  display: block;
+  color: #607584;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  margin-bottom: 0.25rem;
+}
+
+.panel-header h2,
+.share-card h2 {
+  margin: 0 0 0.75rem;
+}
+
+.create-grid,
+.edit-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.share-item + .share-item {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(18, 52, 88, 0.08);
+}
+
+.share-top {
+  margin-bottom: 0.75rem;
+}
+
+.share-top small {
+  display: block;
+  color: #607584;
+}
+
+.danger {
+  background: #a03e2f;
+}
+
+@media (max-width: 720px) {
+  .panel-header,
+  .share-top,
+  .row-actions {
+    flex-direction: column;
+  }
+
+  .create-grid,
+  .edit-row {
+    grid-template-columns: 1fr;
+  }
+}

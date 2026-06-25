@@ -1,0 +1,250 @@
+<section class="page">
+  <header class="page-hero">
+    <span>Document workflow</span>
+    <h1>Documente</h1>
+    <p>Incarca bonuri sau facturi, verifica analiza OCR, confirma produsele detectate si creeaza garantiile in cativa pasi.</p>
+  </header>
+
+  <mat-card appearance="outlined" class="upload-panel">
+    <div class="panel-header">
+      <div>
+        <span class="form-kicker">OCR upload</span>
+        <h2>Analizeaza document</h2>
+      </div>
+      <label class="upload-button">
+        <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event)" [disabled]="uploading()" />
+        <span>{{ uploading() ? 'Uploading...' : 'Upload document' }}</span>
+      </label>
+    </div>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /> Se incarca documentele...</div>
+  } @else {
+    <div class="documents-layout">
+      <mat-card appearance="outlined" class="documents-list-card">
+        <span class="section-kicker">Recent uploads</span>
+        <h2>Documente analizate</h2>
+
+        <div class="documents-list">
+          @for (document of documents(); track document.documentId) {
+            <button
+              type="button"
+              class="document-row"
+              [class.active]="selectedDocumentId() === document.documentId"
+              (click)="selectDocument(document.documentId)"
+            >
+              <div>
+                <strong>{{ document.originalFileName }}</strong>
+                <span>{{ document.uploadedAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+              <small>{{ document.status }}</small>
+            </button>
+          } @empty {
+            <p class="empty-state">Nu exista documente incarcate inca.</p>
+          }
+        </div>
+      </mat-card>
+
+      <div class="document-detail">
+        @if (selectedDocument(); as document) {
+          <mat-card appearance="outlined" class="analysis-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-kicker">Analysis</span>
+                <h2>{{ document.originalFileName }}</h2>
+              </div>
+              <span class="status-pill">{{ document.status }}{{ document.usedOcr ? ' · OCR' : '' }}</span>
+            </div>
+
+            <div class="detail-grid">
+              <div><small>Tip document</small><strong>{{ document.documentType }}</strong></div>
+              <div><small>Merchant</small><strong>{{ document.merchantName || '-' }}</strong></div>
+              <div><small>Numar document</small><strong>{{ document.documentNumber || '-' }}</strong></div>
+              <div><small>Suma</small><strong>{{ document.totalAmount ?? '-' }} {{ document.currency || '' }}</strong></div>
+              <div><small>Data emitere</small><strong>{{ document.issueDate ? (document.issueDate | date: 'dd.MM.yyyy') : '-' }}</strong></div>
+              <div><small>Garantie estimata</small><strong>{{ suggestedWarrantyMonths() }} luni</strong></div>
+            </div>
+
+            @if (document.errorMessage) {
+              <p class="error-box">{{ document.errorMessage }}</p>
+            }
+
+            <div class="text-block">
+              <h3>Text extras</h3>
+              <p>{{ document.extractedText || 'Nu a fost extras text.' }}</p>
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="workflow-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-kicker">Detected products</span>
+                <h2>Am detectat aceste produse. Vrei sa le adaugi?</h2>
+              </div>
+              <button mat-flat-button type="button" (click)="addSelectedProducts()" [disabled]="creatingProducts() || productsReadyToCreate().length === 0">
+                Adauga produsele selectate
+              </button>
+            </div>
+
+            @if (workflowMessage()) {
+              <p class="info-box">{{ workflowMessage() }}</p>
+            }
+
+            <div class="candidate-list">
+              @for (candidate of detectedCandidates(); track candidate.id) {
+                <article class="candidate-card" [class.candidate-created]="!!candidate.createdProductId">
+                  <div class="candidate-header">
+                    <div>
+                      <span class="section-kicker">Produs detectat</span>
+                      <h3>{{ candidate.sourceDescription }}</h3>
+                    </div>
+                    <div class="candidate-actions">
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        [class.action-active]="candidate.shouldAdd"
+                        (click)="updateCandidate(candidate.id, { shouldAdd: true })"
+                      >
+                        Da, adauga-l
+                      </button>
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        [class.action-active]="!candidate.shouldAdd"
+                        (click)="updateCandidate(candidate.id, { shouldAdd: false, shouldCreateWarranty: false })"
+                      >
+                        Nu acum
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="candidate-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Nume produs</mat-label>
+                      <input matInput [ngModel]="candidate.name" (ngModelChange)="updateCandidate(candidate.id, { name: $event })" [ngModelOptions]="{ standalone: true }" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Brand</mat-label>
+                      <input matInput [ngModel]="candidate.brand" (ngModelChange)="updateCandidate(candidate.id, { brand: $event })" [ngModelOptions]="{ standalone: true }" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Model</mat-label>
+                      <input matInput [ngModel]="candidate.model" (ngModelChange)="updateCandidate(candidate.id, { model: $event })" [ngModelOptions]="{ standalone: true }" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Categorie</mat-label>
+                      <mat-select [ngModel]="candidate.categoryId" (ngModelChange)="updateCandidate(candidate.id, { categoryId: $event })" [ngModelOptions]="{ standalone: true }">
+                        @for (category of categories(); track category.categoryId) {
+                          <mat-option [value]="category.categoryId">{{ category.name }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  @if (candidate.createdProductId) {
+                    <p class="success-inline">Produs adaugat in catalog. Acum poti decide daca vrei si garantie.</p>
+                  }
+                </article>
+              } @empty {
+                <p class="empty-state">Nu am detectat produse clare din document. Poti imbunatati numele manual sau incarca alt document.</p>
+              }
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="workflow-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-kicker">Warranty step</span>
+                <h2>Vrei sa adaugi si garantie pentru produsele adaugate?</h2>
+              </div>
+              <button mat-flat-button type="button" (click)="createWarranties()" [disabled]="creatingWarranties() || productsReadyForWarranty().length === 0">
+                Creeaza garantiile selectate
+              </button>
+            </div>
+
+            <div class="candidate-list compact-list">
+              @for (candidate of detectedCandidates(); track candidate.id) {
+                @if (candidate.createdProductId) {
+                  <article class="candidate-card compact-card" [class.candidate-created]="!!candidate.warrantyCreatedId">
+                    <div class="candidate-header">
+                      <div>
+                        <span class="section-kicker">Produs adaugat</span>
+                        <h3>{{ candidate.name }}</h3>
+                      </div>
+                      <div class="candidate-actions">
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [class.action-active]="candidate.shouldCreateWarranty"
+                          (click)="updateCandidate(candidate.id, { shouldCreateWarranty: true })"
+                        >
+                          Da, garantie
+                        </button>
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [class.action-active]="!candidate.shouldCreateWarranty"
+                          (click)="updateCandidate(candidate.id, { shouldCreateWarranty: false })"
+                        >
+                          Nu acum
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="candidate-grid warranty-grid">
+                      <div class="inline-detail">
+                        <small>Produs din catalog</small>
+                        <strong>{{ productLabel(candidate.createdProductId) }}</strong>
+                      </div>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Luni garantie</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [ngModel]="candidate.warrantyMonths"
+                          (ngModelChange)="updateCandidate(candidate.id, { warrantyMonths: +$event || suggestedWarrantyMonths() })"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </mat-form-field>
+                    </div>
+
+                    @if (candidate.warrantyCreatedId) {
+                      <p class="success-inline">Garantia a fost creata pentru acest produs.</p>
+                    }
+                  </article>
+                }
+              } @empty {
+                <p class="empty-state">Mai intai adauga in catalog produsele pe care vrei sa le folosesti pentru garantii.</p>
+              }
+            </div>
+
+            @if (createdWarranties().length > 0) {
+              <div class="success-box">
+                <h3>Garantii create</h3>
+                <div class="created-list">
+                  @for (result of createdWarranties(); track result.warranty.warrantyId) {
+                    <div>
+                      <strong>{{ productLabel(result.warranty.productId) }}</strong>
+                      <small>{{ result.warranty.durationMonths }} luni · ID {{ result.warranty.warrantyId }}</small>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </mat-card>
+        } @else {
+          <mat-card appearance="outlined" class="empty-card">
+            <span class="empty-kicker">No document selected</span>
+            <h2>Incarca sau selecteaza un document</h2>
+            <p>Dupa analiza vei putea confirma produsele detectate si genera garantiile direct din pagina asta.</p>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</section>

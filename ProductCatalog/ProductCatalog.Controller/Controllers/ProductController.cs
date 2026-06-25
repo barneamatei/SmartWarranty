@@ -8,9 +8,9 @@ namespace ProductCatalog.Controller.Controllers;
 [Route("api/[controller]")]
 public class ProductController : ControllerBase
 {
-    private readonly IProductCatalogService _productCatalogService;
+    private readonly ProductCatalogService _productCatalogService;
 
-    public ProductController(IProductCatalogService productCatalogService)
+    public ProductController(ProductCatalogService productCatalogService)
     {
         _productCatalogService = productCatalogService ?? throw new ArgumentNullException(nameof(productCatalogService));
     }
@@ -25,7 +25,8 @@ public class ProductController : ControllerBase
             request.Name,
             request.Brand,
             request.Model,
-            request.CategoryId);
+            request.CategoryId,
+            request.UserId);
 
         return CreatedAtAction(nameof(GetProductById), new { id = productDto.ProductId }, productDto);
     }
@@ -49,9 +50,12 @@ public class ProductController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts([FromQuery] Guid? userId)
     {
-        var productDtos = await _productCatalogService.GetAllProductsAsync();
+        var productDtos = userId.HasValue
+            ? await _productCatalogService.GetProductsByUserIdAsync(userId.Value)
+            : await _productCatalogService.GetAllProductsAsync();
+
         return Ok(productDtos);
     }
 

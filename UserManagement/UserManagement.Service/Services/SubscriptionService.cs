@@ -5,7 +5,7 @@ using UserManagement.Domain.Entities;
 
 namespace UserManagement.Service.Services;
 
-public class SubscriptionService : ISubscriptionService
+public class SubscriptionService
 {
     private readonly ISubscriptionDao _subscriptionDao;
     private readonly IUserDao _userDao;

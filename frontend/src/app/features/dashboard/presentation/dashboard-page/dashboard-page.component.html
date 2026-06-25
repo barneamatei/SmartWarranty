@@ -1,0 +1,131 @@
+<section class="dashboard-page">
+  <header class="hero-card">
+    <div class="hero-kicker">SmartWarranty Portal</div>
+
+    <div class="hero-layout">
+      <div class="hero-copy">
+        <h1>Bine ai venit, {{ displayName() }}</h1>
+        <p>
+          Ai un singur panou pentru produsele tale, garantiile active, documentele analizate, notificari si rapoarte.
+        </p>
+
+        <div class="hero-links">
+          @if (isAdmin()) {
+            <a routerLink="/admin">Admin</a>
+          }
+          <a routerLink="/profile">Profile</a>
+          <a routerLink="/subscriptions">Subscriptions</a>
+          @if (isPremium()) {
+            <a routerLink="/family-sharing">Family sharing</a>
+          }
+          <a routerLink="/documents">Documents</a>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <span>{{ now | date: 'dd.MM.yyyy HH:mm' }}</span>
+        <button mat-flat-button type="button" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-card">
+      <mat-spinner diameter="34" />
+      <span>Incarcam datele contului tau...</span>
+    </div>
+  } @else {
+    <div class="metric-grid">
+      <mat-card appearance="outlined" class="metric-card accent-cyan">
+        <span>Utilizatori</span>
+        <strong>{{ snapshot()?.users?.length ?? 0 }}</strong>
+        <small>profiluri active</small>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="metric-card accent-green">
+        <span>Produsele mele</span>
+        <strong>{{ snapshot()?.products?.length ?? 0 }}</strong>
+        <small>acoperite de garantii</small>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="metric-card accent-blue">
+        <span>Garantii active</span>
+        <strong>{{ activeWarranties() }}</strong>
+        <small>{{ expiringWarranties() }} expira in 30 zile</small>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="metric-card accent-amber">
+        <span>Notificari</span>
+        <strong>{{ unreadNotifications() }}</strong>
+        <small>necitite pentru contul curent</small>
+      </mat-card>
+    </div>
+
+    <div class="content-grid">
+      <mat-card appearance="outlined" class="panel wide-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">My coverage</span>
+            <h2>Garantii recente</h2>
+          </div>
+          @if (isPremium()) {
+            <button mat-stroked-button type="button" (click)="exportReport('expiring-warranties', 'xlsx')">
+              Export expirari
+            </button>
+          }
+        </div>
+
+        <div class="table-list">
+          @for (warranty of recentWarranties(); track warranty.warrantyId) {
+            <article class="table-row">
+              <div>
+                <strong>{{ warrantyLabel(warranty) }}</strong>
+                <span>{{ productLabel(warranty.productId) }}</span>
+              </div>
+              <div>
+                <small>Expira</small>
+                <span>{{ warranty.expiryDate | date: 'dd.MM.yyyy' }}</span>
+              </div>
+              <span class="status-pill" [ngClass]="statusClass(warranty.status)">{{ warranty.status }}</span>
+            </article>
+          } @empty {
+            <p class="empty-state">Nu avem inca garantii de afisat.</p>
+          }
+        </div>
+      </mat-card>
+
+      @if (isPremium()) {
+        <mat-card appearance="outlined" class="panel report-panel">
+          <span class="eyebrow">Exports</span>
+          <h2>Rapoarte</h2>
+          <p>
+            {{ snapshot()?.portfolioReport?.recordCount ?? 0 }} randuri in portofoliu si
+            {{ snapshot()?.expiringReport?.recordCount ?? 0 }} garantii aproape de expirare.
+          </p>
+
+          <div class="report-actions">
+            <button mat-flat-button type="button" (click)="exportReport('portfolio', 'pdf')">PDF portofoliu</button>
+            <button mat-stroked-button type="button" (click)="exportReport('portfolio', 'xlsx')">Excel portofoliu</button>
+          </div>
+        </mat-card>
+      }
+
+      <mat-card appearance="outlined" class="panel notification-panel">
+        <span class="eyebrow">My updates</span>
+        <h2>Notificari</h2>
+
+        <div class="notification-list">
+          @for (notification of recentNotifications(); track notification.notificationId) {
+            <article>
+              <strong>{{ notification.title }}</strong>
+              <span>{{ notification.message }}</span>
+              <small>{{ notificationLabel(notification) }}</small>
+            </article>
+          } @empty {
+            <p class="empty-state">Nu exista notificari pentru contul curent.</p>
+          }
+        </div>
+      </mat-card>
+    </div>
+  }
+</section>

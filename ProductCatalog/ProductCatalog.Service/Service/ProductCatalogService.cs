@@ -4,7 +4,7 @@ using ProductCatalog.Domain.Entities;
 
 namespace ProductCatalog.Service;
 
-public class ProductCatalogService : IProductCatalogService
+public class ProductCatalogService
 {
     private readonly IProductDao _productRepository;
     private readonly ICategoryDao _categoryRepository;
@@ -17,7 +17,7 @@ public class ProductCatalogService : IProductCatalogService
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
     }
 
-    public async Task<ProductDto> CreateProductAsync(string name, string brand, string model, Guid categoryId)
+    public async Task<ProductDto> CreateProductAsync(string name, string brand, string model, Guid categoryId, Guid? userId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Product name cannot be null or empty.", nameof(name));
@@ -33,9 +33,13 @@ public class ProductCatalogService : IProductCatalogService
         {
             throw new InvalidOperationException($"Category with ID {categoryId} does not exist.");
         }
+        if (userId.HasValue && category.UserId != userId)
+        {
+            throw new InvalidOperationException("Category does not belong to this user.");
+        }
 
         var productId = Guid.NewGuid();
-        var product = new Product(productId, name, brand, model, categoryId);
+        var product = new Product(productId, name, brand, model, categoryId, userId);
 
         var savedProduct = await _productRepository.AddAsync(product);
         return MapToDto(savedProduct);
@@ -101,6 +105,15 @@ public class ProductCatalogService : IProductCatalogService
         return products.Select(MapToDto);
     }
 
+    public async Task<IEnumerable<ProductDto>> GetProductsByUserIdAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User ID cannot be empty.", nameof(userId));
+
+        var products = await _productRepository.GetByUserIdAsync(userId);
+        return products.Select(MapToDto);
+    }
+
     public async Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
@@ -127,6 +140,7 @@ public class ProductCatalogService : IProductCatalogService
             Brand = product.Brand,
             Model = product.Model,
             CategoryId = product.CategoryId,
+            UserId = product.UserId,
             Status = product.Status.ToString()
         };
     }

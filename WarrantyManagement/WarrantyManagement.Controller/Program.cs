@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WarrantyManagement.Domain.Contracts;
 using WarrantyManagement.Infrastructure.Data;
+using WarrantyManagement.Infrastructure.Clients;
 using WarrantyManagement.Infrastructure.Persistence;
 using WarrantyManagement.Infrastructure.Repositories;
 using WarrantyManagement.Service.Exceptions;
@@ -26,9 +27,27 @@ builder.Services.AddDbContext<WarrantyManagementDbContext>(options =>
 
 builder.Services.AddScoped<IWarrantyDao, WarrantyRepository>();
 builder.Services.AddScoped<IClaimDao, ClaimRepository>();
+builder.Services.AddHttpClient<IUserManagementClient, UserManagementClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:UserManagementBaseUrl"] ?? "http://localhost:5139/");
+});
+builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:ProductCatalogBaseUrl"] ?? "http://localhost:5085/");
+});
+builder.Services.AddHttpClient<INotificationManagementClient, NotificationManagementClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalServices:NotificationManagementBaseUrl"] ?? "http://localhost:5160/");
+});
 
-builder.Services.AddScoped<IWarrantyService, WarrantyService>();
-builder.Services.AddScoped<IClaimService, ClaimService>();
+var documentAnalysisBaseUrl = builder.Configuration["ExternalServices:DocumentAnalysisBaseUrl"] ?? "http://localhost:5291/";
+builder.Services.AddHttpClient<IDocumentAnalysisClient, DocumentAnalysisClient>(client =>
+{
+    client.BaseAddress = new Uri(documentAnalysisBaseUrl);
+});
+
+builder.Services.AddScoped<WarrantyService>();
+builder.Services.AddScoped<ClaimService>();
 
 var app = builder.Build();
 

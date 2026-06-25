@@ -5,22 +5,89 @@ using WarrantyManagement.Service.Exceptions;
 
 namespace WarrantyManagement.Service.Services;
 
-public class WarrantyService : IWarrantyService
+public class WarrantyService
 {
     private readonly IWarrantyDao _warrantyDao;
+    private readonly IDocumentAnalysisClient _documentAnalysisClient;
+    private readonly IUserManagementClient _userManagementClient;
+    private readonly IProductCatalogClient _productCatalogClient;
+    private readonly INotificationManagementClient _notificationManagementClient;
 
-    public WarrantyService(IWarrantyDao warrantyDao)
+    public WarrantyService(
+        IWarrantyDao warrantyDao,
+        IDocumentAnalysisClient documentAnalysisClient,
+        IUserManagementClient userManagementClient,
+        IProductCatalogClient productCatalogClient,
+        INotificationManagementClient notificationManagementClient)
     {
         _warrantyDao = warrantyDao ?? throw new ArgumentNullException(nameof(warrantyDao));
+        _documentAnalysisClient = documentAnalysisClient ?? throw new ArgumentNullException(nameof(documentAnalysisClient));
+        _userManagementClient = userManagementClient ?? throw new ArgumentNullException(nameof(userManagementClient));
+        _productCatalogClient = productCatalogClient ?? throw new ArgumentNullException(nameof(productCatalogClient));
+        _notificationManagementClient = notificationManagementClient ?? throw new ArgumentNullException(nameof(notificationManagementClient));
     }
 
     public async Task<WarrantyResponseDto> CreateAsync(CreateWarrantyDto dto, CancellationToken cancellationToken = default)
     {
-        ValidateWarrantyInput(dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths);
+        await ValidateWarrantyInputAsync(dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths, cancellationToken);
 
         var warranty = new Warranty(Guid.NewGuid(), dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths);
         var savedWarranty = await _warrantyDao.AddAsync(warranty, cancellationToken);
+        await TryCreateNotificationAsync(
+            dto.UserId,
+            "Warranty created",
+            $"A new warranty was created and expires on {savedWarranty.ExpiryDate:yyyy-MM-dd}.",
+            "General",
+            $"{{\"warrantyId\":\"{savedWarranty.WarrantyId}\"}}",
+            cancellationToken);
         return MapToResponse(savedWarranty);
+    }
+
+    public async Task<WarrantyCreationFromDocumentResponseDto> CreateFromDocumentAsync(CreateWarrantyFromDocumentDto dto, CancellationToken cancellationToken = default)
+    {
+        if (dto.DocumentId == Guid.Empty)
+            throw new DomainException("DocumentId is invalid.");
+
+        var createdWarranty = await CreateAsync(new CreateWarrantyDto
+        {
+            UserId = dto.UserId,
+            ProductId = dto.ProductId,
+            PurchaseDate = dto.PurchaseDate,
+            DurationMonths = dto.DurationMonths
+        }, cancellationToken);
+
+        return new WarrantyCreationFromDocumentResponseDto
+        {
+            DocumentId = dto.DocumentId,
+            MerchantName = dto.MerchantName,
+            DocumentNumber = dto.DocumentNumber,
+            ProductDescription = dto.ProductDescription,
+            TotalAmount = dto.TotalAmount,
+            Currency = dto.Currency,
+            Warranty = createdWarranty
+        };
+    }
+
+    public async Task<WarrantyCreationFromDocumentResponseDto> CreateFromAnalyzedDocumentAsync(Guid documentId, CreateWarrantyFromAnalyzedDocumentDto dto, CancellationToken cancellationToken = default)
+    {
+        if (documentId == Guid.Empty)
+            throw new DomainException("DocumentId is invalid.");
+
+        var draft = await _documentAnalysisClient.CreateWarrantyDraftAsync(documentId, dto, cancellationToken);
+
+        return await CreateFromDocumentAsync(new CreateWarrantyFromDocumentDto
+        {
+            DocumentId = draft.DocumentId,
+            UserId = draft.UserId,
+            ProductId = draft.ProductId,
+            PurchaseDate = draft.PurchaseDate,
+            DurationMonths = draft.DurationMonths,
+            ProductDescription = draft.ProductDescription,
+            MerchantName = draft.MerchantName,
+            DocumentNumber = draft.DocumentNumber,
+            TotalAmount = draft.TotalAmount,
+            Currency = draft.Currency
+        }, cancellationToken);
     }
 
     public async Task<WarrantyResponseDto?> GetByIdAsync(Guid warrantyId, CancellationToken cancellationToken = default)
@@ -59,7 +126,7 @@ public class WarrantyService : IWarrantyService
         if (warranty == null)
             throw new DomainException($"Warranty with ID {warrantyId} not found.");
 
-        ValidateWarrantyInput(dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths);
+        await ValidateWarrantyInputAsync(dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths, cancellationToken);
         warranty.UpdateDetails(dto.UserId, dto.ProductId, dto.PurchaseDate, dto.DurationMonths);
 
         if (!string.IsNullOrWhiteSpace(dto.Status))
@@ -94,7 +161,7 @@ public class WarrantyService : IWarrantyService
         return _warrantyDao.DeleteAsync(warrantyId, cancellationToken);
     }
 
-    private static void ValidateWarrantyInput(Guid userId, Guid productId, DateTime purchaseDate, int durationMonths)
+    private async Task ValidateWarrantyInputAsync(Guid userId, Guid productId, DateTime purchaseDate, int durationMonths, CancellationToken cancellationToken)
     {
         if (userId == Guid.Empty)
             throw new DomainException("UserId is invalid.");
@@ -104,6 +171,12 @@ public class WarrantyService : IWarrantyService
             throw new DomainException("PurchaseDate is invalid.");
         if (durationMonths <= 0)
             throw new DomainException("DurationMonths must be greater than 0.");
+
+        if (!await _userManagementClient.UserExistsAsync(userId, cancellationToken))
+            throw new DomainException($"User with ID {userId} was not found in UserManagement.");
+
+        if (!await _productCatalogClient.ProductExistsAsync(productId, cancellationToken))
+            throw new DomainException($"Product with ID {productId} was not found in ProductCatalog.");
     }
 
     private static void ApplyStatusOverride(Warranty warranty, WarrantyStatus status)
@@ -141,5 +214,23 @@ public class WarrantyService : IWarrantyService
             ExpiryDate = warranty.ExpiryDate,
             Status = warranty.Status.ToString()
         };
+    }
+
+    private async Task TryCreateNotificationAsync(
+        Guid userId,
+        string title,
+        string message,
+        string type,
+        string metadata,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _notificationManagementClient.CreateNotificationAsync(userId, title, message, type, "InApp", metadata, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _ = ex;
+        }
     }
 }

@@ -1,32 +1,26 @@
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace DocumentAnalysis.Infrastructure.Tasks;
 
-public class ImagePreprocessor : IImagePreprocessor
+public class ImagePreprocessor
 {
     public Task<string> PreprocessAsync(string inputPath, CancellationToken cancellationToken = default)
     {
-        if (!OperatingSystem.IsWindows())
-            return Task.FromResult(inputPath);
-
-        using var sourceImage = Image.FromFile(inputPath);
+        using var sourceImage = Image.Load<Rgba32>(inputPath);
         var outputPath = Path.Combine(
             Path.GetTempPath(),
             $"preprocessed-{Guid.NewGuid()}.png");
 
-        using var processedBitmap = ProcessImage(sourceImage, sourceImage.Width, sourceImage.Height, 0, 0);
-        processedBitmap.Save(outputPath, ImageFormat.Png);
+        using var processedImage = ProcessImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height));
+        processedImage.SaveAsPng(outputPath);
         return Task.FromResult(outputPath);
     }
 
     public Task<string> CropHeaderAsync(string inputPath, CancellationToken cancellationToken = default)
     {
-        if (!OperatingSystem.IsWindows())
-            return Task.FromResult(inputPath);
-
-        using var sourceImage = Image.FromFile(inputPath);
+        using var sourceImage = Image.Load<Rgba32>(inputPath);
         var cropX = sourceImage.Width / 2;
         var cropY = 0;
         var cropWidth = sourceImage.Width - cropX;
@@ -36,50 +30,48 @@ public class ImagePreprocessor : IImagePreprocessor
             Path.GetTempPath(),
             $"preprocessed-header-{Guid.NewGuid()}.png");
 
-        using var processedBitmap = ProcessImage(sourceImage, cropWidth, cropHeight, cropX, cropY);
-        processedBitmap.Save(outputPath, ImageFormat.Png);
+        using var processedImage = ProcessImage(sourceImage, new Rectangle(cropX, cropY, cropWidth, cropHeight));
+        processedImage.SaveAsPng(outputPath);
         return Task.FromResult(outputPath);
     }
 
-    private static Bitmap ProcessImage(Image sourceImage, int sourceWidth, int sourceHeight, int cropX, int cropY)
+    private static Image<Rgba32> ProcessImage(Image<Rgba32> sourceImage, Rectangle cropRectangle)
     {
         var scale = 2;
-        var width = sourceWidth * scale;
-        var height = sourceHeight * scale;
+        var width = cropRectangle.Width * scale;
+        var height = cropRectangle.Height * scale;
 
-        using var resizedBitmap = new Bitmap(width, height);
-        resizedBitmap.SetResolution(300, 300);
-
-        using (var graphics = Graphics.FromImage(resizedBitmap))
-        {
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            graphics.Clear(Color.White);
-            graphics.DrawImage(
-                sourceImage,
-                new Rectangle(0, 0, width, height),
-                new Rectangle(cropX, cropY, sourceWidth, sourceHeight),
-                GraphicsUnit.Pixel);
-        }
-
-        var processedBitmap = new Bitmap(width, height);
-
-        for (var y = 0; y < height; y++)
-        {
-            for (var x = 0; x < width; x++)
+        var processedImage = sourceImage.Clone(context => context
+            .Crop(cropRectangle)
+            .Resize(new ResizeOptions
             {
-                var pixel = resizedBitmap.GetPixel(x, y);
+                Size = new Size(width, height),
+                Mode = ResizeMode.Stretch,
+                Sampler = KnownResamplers.Bicubic
+            })
+            .BackgroundColor(Color.White));
 
-                // Weighted grayscale followed by a hard threshold improves OCR on invoices.
-                var gray = (int)((pixel.R * 0.299) + (pixel.G * 0.587) + (pixel.B * 0.114));
-                var normalized = Math.Clamp((gray - 128) * 2 + 128, 0, 255);
-                var binary = normalized > 170 ? 255 : 0;
+        processedImage.Metadata.HorizontalResolution = 300;
+        processedImage.Metadata.VerticalResolution = 300;
 
-                processedBitmap.SetPixel(x, y, Color.FromArgb(binary, binary, binary));
+        processedImage.ProcessPixelRows(accessor =>
+        {
+            for (var y = 0; y < accessor.Height; y++)
+            {
+                var row = accessor.GetRowSpan(y);
+                for (var x = 0; x < row.Length; x++)
+                {
+                    var pixel = row[x];
+
+                    var gray = (int)((pixel.R * 0.299) + (pixel.G * 0.587) + (pixel.B * 0.114));
+                    var normalized = Math.Clamp((gray - 128) * 2 + 128, 0, 255);
+                    var binary = normalized > 170 ? (byte)255 : (byte)0;
+
+                    row[x] = new Rgba32(binary, binary, binary);
+                }
             }
-        }
+        });
 
-        return processedBitmap;
+        return processedImage;
     }
 }

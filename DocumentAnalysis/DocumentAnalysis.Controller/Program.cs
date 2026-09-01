@@ -30,7 +30,7 @@ builder.Services.Configure<TesseractOptions>(builder.Configuration.GetSection("T
 builder.Services.AddScoped<IAnalyzedDocumentDao, AnalyzedDocumentRepository>();
 builder.Services.AddScoped<DocumentAnalysisService>();
 builder.Services.AddScoped<IDocumentMetadataExtractor, DocumentMetadataExtractor>();
-builder.Services.AddScoped<IImagePreprocessor, ImagePreprocessor>();
+builder.Services.AddScoped<ImagePreprocessor>();
 builder.Services.AddScoped<IDocumentTextExtractor, PdfDocumentTextExtractor>();
 builder.Services.AddScoped<IDocumentTextExtractor, TesseractImageTextExtractor>();
 

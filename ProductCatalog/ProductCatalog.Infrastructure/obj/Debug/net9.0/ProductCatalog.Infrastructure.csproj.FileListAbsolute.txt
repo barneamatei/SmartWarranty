@@ -36,3 +36,4 @@ C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Infrastructure\obj\
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Infrastructure\obj\Debug\net9.0\ProductCatalog.Infrastructure.pdb
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Infrastructure\obj\Debug\net9.0\ProductCatalog.Infrastructure.genruntimeconfig.cache
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Infrastructure\obj\Debug\net9.0\ref\ProductCatalog.Infrastructure.dll
+c:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Infrastructure\obj\Debug\net9.0\ProductCatalog.Infrastructure.sourcelink.json

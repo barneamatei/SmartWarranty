@@ -28,3 +28,4 @@ C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Service\obj\Debug\n
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Service\obj\Debug\net9.0\refint\ProductCatalog.Service.dll
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Service\obj\Debug\net9.0\ProductCatalog.Service.pdb
 C:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Service\obj\Debug\net9.0\ref\ProductCatalog.Service.dll
+c:\Users\Admin\Desktop\licenta\ProductCatalog\ProductCatalog.Service\obj\Debug\net9.0\ProductCatalog.Service.sourcelink.json

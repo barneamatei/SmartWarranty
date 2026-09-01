@@ -12,9 +12,9 @@ namespace DocumentAnalysis.Infrastructure.Tasks;
 public class TesseractImageTextExtractor : IDocumentTextExtractor
 {
     private readonly TesseractOptions _options;
-    private readonly IImagePreprocessor _imagePreprocessor;
+    private readonly ImagePreprocessor _imagePreprocessor;
 
-    public TesseractImageTextExtractor(IOptions<TesseractOptions> options, IImagePreprocessor imagePreprocessor)
+    public TesseractImageTextExtractor(IOptions<TesseractOptions> options, ImagePreprocessor imagePreprocessor)
     {
         _options = options.Value;
         _imagePreprocessor = imagePreprocessor ?? throw new ArgumentNullException(nameof(imagePreprocessor));

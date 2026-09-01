@@ -11,7 +11,7 @@ import { apiConfig } from '../../../../core/config/api.config';
 import { UiFeedbackService } from '../../../../shared/ui/ui-feedback.service';
 import { AuthViewModel } from '../../../auth/view-models/auth.view-model';
 import { DashboardApiService } from '../../data/dashboard-api.service';
-import { DashboardSnapshot, NotificationSummary, WarrantySummary } from '../../models/dashboard.models';
+import { DashboardSnapshot, NotificationSummary } from '../../models/dashboard.models';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -100,10 +100,6 @@ export class DashboardPageComponent {
 
   statusClass(status: string) {
     return `status-${status.toLowerCase()}`;
-  }
-
-  warrantyLabel(warranty: WarrantySummary) {
-    return `${warranty.warrantyId.slice(0, 8)} / ${warranty.status}`;
   }
 
   productLabel(productId: string) {

@@ -79,8 +79,8 @@
           @for (warranty of recentWarranties(); track warranty.warrantyId) {
             <article class="table-row">
               <div>
-                <strong>{{ warrantyLabel(warranty) }}</strong>
-                <span>{{ productLabel(warranty.productId) }}</span>
+                <strong>{{ productLabel(warranty.productId) }}</strong>
+                <span>Garantie {{ warranty.durationMonths }} luni</span>
               </div>
               <div>
                 <small>Expira</small>

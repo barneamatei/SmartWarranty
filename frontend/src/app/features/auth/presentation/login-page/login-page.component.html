@@ -38,9 +38,6 @@
       @if (form.controls.password.touched && form.controls.password.hasError('required')) {
         <mat-error>Parola este obligatorie.</mat-error>
       }
-      @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
-        <mat-error>Parola trebuie sa aiba cel putin 6 caractere.</mat-error>
-      }
     </mat-form-field>
 
     <button mat-flat-button type="submit" class="submit-button" [disabled]="authViewModel.isLoading()">

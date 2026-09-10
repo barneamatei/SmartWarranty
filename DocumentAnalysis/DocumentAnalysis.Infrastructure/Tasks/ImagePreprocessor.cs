@@ -1,4 +1,5 @@
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -6,72 +7,80 @@ namespace DocumentAnalysis.Infrastructure.Tasks;
 
 public class ImagePreprocessor
 {
-    public Task<string> PreprocessAsync(string inputPath, CancellationToken cancellationToken = default)
+    private const int Scale = 2;
+
+    public async Task<string> PreprocessAsync(string inputPath, CancellationToken cancellationToken = default)
     {
-        using var sourceImage = Image.Load<Rgba32>(inputPath);
+        using var sourceImage = await Image.LoadAsync<Rgba32>(inputPath, cancellationToken);
         var outputPath = Path.Combine(
             Path.GetTempPath(),
             $"preprocessed-{Guid.NewGuid()}.png");
 
         using var processedImage = ProcessImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height));
-        processedImage.SaveAsPng(outputPath);
-        return Task.FromResult(outputPath);
+        await processedImage.SaveAsPngAsync(outputPath, cancellationToken);
+
+        return outputPath;
     }
 
-    public Task<string> CropHeaderAsync(string inputPath, CancellationToken cancellationToken = default)
+    public async Task<string> CropHeaderAsync(string inputPath, CancellationToken cancellationToken = default)
     {
-        using var sourceImage = Image.Load<Rgba32>(inputPath);
+        using var sourceImage = await Image.LoadAsync<Rgba32>(inputPath, cancellationToken);
         var cropX = sourceImage.Width / 2;
-        var cropY = 0;
         var cropWidth = sourceImage.Width - cropX;
-        var cropHeight = (int)(sourceImage.Height * 0.22);
+        var cropHeight = Math.Max(1, (int)(sourceImage.Height * 0.22));
 
         var outputPath = Path.Combine(
             Path.GetTempPath(),
             $"preprocessed-header-{Guid.NewGuid()}.png");
 
-        using var processedImage = ProcessImage(sourceImage, new Rectangle(cropX, cropY, cropWidth, cropHeight));
-        processedImage.SaveAsPng(outputPath);
-        return Task.FromResult(outputPath);
+        using var processedImage = ProcessImage(sourceImage, new Rectangle(cropX, 0, cropWidth, cropHeight));
+        await processedImage.SaveAsPngAsync(outputPath, cancellationToken);
+
+        return outputPath;
     }
 
-    private static Image<Rgba32> ProcessImage(Image<Rgba32> sourceImage, Rectangle cropRectangle)
+    private static Image<Rgba32> ProcessImage(Image<Rgba32> sourceImage, Rectangle cropArea)
     {
-        var scale = 2;
-        var width = cropRectangle.Width * scale;
-        var height = cropRectangle.Height * scale;
+        var image = sourceImage.Clone(context => context
+            .Crop(cropArea)
+            .Resize(cropArea.Width * Scale, cropArea.Height * Scale, KnownResamplers.Lanczos3));
 
-        var processedImage = sourceImage.Clone(context => context
-            .Crop(cropRectangle)
-            .Resize(new ResizeOptions
-            {
-                Size = new Size(width, height),
-                Mode = ResizeMode.Stretch,
-                Sampler = KnownResamplers.Bicubic
-            })
-            .BackgroundColor(Color.White));
+        image.Metadata.HorizontalResolution = 300;
+        image.Metadata.VerticalResolution = 300;
+        image.Metadata.ResolutionUnits = PixelResolutionUnit.PixelsPerInch;
 
-        processedImage.Metadata.HorizontalResolution = 300;
-        processedImage.Metadata.VerticalResolution = 300;
+        ApplyThreshold(image);
+        return image;
+    }
 
-        processedImage.ProcessPixelRows(accessor =>
+    private static void ApplyThreshold(Image<Rgba32> image)
+    {
+        image.ProcessPixelRows(accessor =>
         {
             for (var y = 0; y < accessor.Height; y++)
             {
                 var row = accessor.GetRowSpan(y);
+
                 for (var x = 0; x < row.Length; x++)
                 {
                     var pixel = row[x];
+                    var alpha = pixel.A;
+                    var red = BlendWithWhite(pixel.R, alpha);
+                    var green = BlendWithWhite(pixel.G, alpha);
+                    var blue = BlendWithWhite(pixel.B, alpha);
 
-                    var gray = (int)((pixel.R * 0.299) + (pixel.G * 0.587) + (pixel.B * 0.114));
+                    var gray = (int)((red * 0.299) + (green * 0.587) + (blue * 0.114));
                     var normalized = Math.Clamp((gray - 128) * 2 + 128, 0, 255);
                     var binary = normalized > 170 ? (byte)255 : (byte)0;
 
-                    row[x] = new Rgba32(binary, binary, binary);
+                    row[x] = new Rgba32(binary, binary, binary, 255);
                 }
             }
         });
+    }
 
-        return processedImage;
+    private static byte BlendWithWhite(byte channel, byte alpha)
+    {
+        return (byte)((channel * alpha + 255 * (255 - alpha)) / 255);
     }
 }

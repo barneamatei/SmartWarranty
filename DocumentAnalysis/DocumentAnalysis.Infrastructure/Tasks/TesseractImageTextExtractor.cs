@@ -36,7 +36,7 @@ public class TesseractImageTextExtractor : IDocumentTextExtractor
 
         try
         {
-            var text = await RunTesseractAsync(preprocessedPath, cancellationToken);
+            var text = await RunTesseractAsync(preprocessedPath, cancellationToken, pageSegmentationMode: 6);
             if (!string.Equals(headerPath, filePath, StringComparison.OrdinalIgnoreCase))
             {
                 var headerText = await RunTesseractAsync(headerPath, cancellationToken, pageSegmentationMode: 6);

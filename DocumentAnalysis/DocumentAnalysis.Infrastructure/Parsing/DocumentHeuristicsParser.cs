@@ -91,6 +91,14 @@ internal static partial class DocumentHeuristicsParser
 
     private static string? ExtractDocumentNumber(string text)
     {
+        var fiscalInvoiceNumberMatch = FiscalInvoiceNumberRegex().Match(text);
+        if (fiscalInvoiceNumberMatch.Success)
+        {
+            var fiscalInvoiceNumber = fiscalInvoiceNumberMatch.Groups[1].Value.Trim();
+            if (!string.IsNullOrWhiteSpace(fiscalInvoiceNumber))
+                return fiscalInvoiceNumber;
+        }
+
         var seriesAndNumberMatch = SeriesAndNumberRegex().Match(text);
         if (seriesAndNumberMatch.Success)
         {
@@ -163,7 +171,7 @@ internal static partial class DocumentHeuristicsParser
     {
         if (DateTime.TryParseExact(
                 value,
-                ["dd.MM.yyyy", "dd/MM/yyyy", "yyyy-MM-dd"],
+                ["dd.MM.yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-dd"],
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out var exactDate))
@@ -356,16 +364,26 @@ internal static partial class DocumentHeuristicsParser
             if (PriceTableHeaderRegex().IsMatch(line) || RomanianPriceHeaderRegex().IsMatch(line))
                 continue;
 
-            var parsedLine = ParseLineItem(line);
-            if (parsedLine != null)
+            if (IsTableLegendLine(line))
+                continue;
+
+            var englishInvoiceLine = ParseEnglishInvoiceLineItem(line);
+            if (englishInvoiceLine != null)
             {
-                results.Add(parsedLine);
+                results.Add(englishInvoiceLine);
                 continue;
             }
 
             var invoiceLine = ParseRomanianInvoiceLineItem(line);
             if (invoiceLine != null)
+            {
                 results.Add(invoiceLine);
+                continue;
+            }
+
+            var parsedLine = ParseLineItem(line);
+            if (parsedLine != null)
+                results.Add(parsedLine);
         }
 
         return results;
@@ -597,6 +615,31 @@ internal static partial class DocumentHeuristicsParser
         return StopMarkerRegex().IsMatch(line);
     }
 
+    private static ExtractedLineItemDto? ParseEnglishInvoiceLineItem(string line)
+    {
+        var match = EnglishInvoiceLineRegex().Match(line);
+        if (!match.Success)
+            return null;
+
+        var description = MoneyRegex().Replace(match.Groups["desc"].Value, string.Empty);
+        description = MultiSpaceRegex().Replace(description, " ").Trim(' ', '-', ':');
+        if (string.IsNullOrWhiteSpace(description))
+            return null;
+
+        return new ExtractedLineItemDto
+        {
+            Description = description,
+            Quantity = int.TryParse(match.Groups["qty"].Value, out var quantity) ? quantity : null,
+            UnitPrice = ParseDecimal(match.Groups["unit"].Value),
+            Amount = ParseDecimal(match.Groups["amount"].Value)
+        };
+    }
+
+    private static bool IsTableLegendLine(string line)
+    {
+        return TableLegendRegex().IsMatch(line) || ColumnFormulaRegex().IsMatch(line);
+    }
+
     private static string NormalizeAmount(string rawValue)
     {
         var value = rawValue.Trim();
@@ -605,6 +648,9 @@ internal static partial class DocumentHeuristicsParser
             .Replace("RON", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("LEI", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Trim();
+
+        if (value.Count(c => c == ':') == 1 && value.Count(c => c == '.') == 0 && value.Count(c => c == ',') == 0)
+            value = value.Replace(":", ".", StringComparison.Ordinal);
 
         if (value.Contains(',') && value.Contains('.'))
             return value.Replace(",", string.Empty, StringComparison.Ordinal);
@@ -714,6 +760,9 @@ internal static partial class DocumentHeuristicsParser
     [GeneratedRegex(@"(?:invoice\s*(?:no|number)?|receipt\s*(?:no|number)?|factura\s*(?:nr|numar)?|bon(?:\s+fiscal)?\s*(?:nr|numar)?)[^\r\n:]*[:#\s]+([A-Z0-9\-\/]+)", RegexOptions.IgnoreCase)]
     private static partial Regex DocumentNumberRegex();
 
+    [GeneratedRegex(@"factura(?:\s+fiscala)?\s+nr\.?\s*[:#]?\s*([A-Z0-9][A-Z0-9\-\/]+)", RegexOptions.IgnoreCase)]
+    private static partial Regex FiscalInvoiceNumberRegex();
+
     [GeneratedRegex(@"(?:nr\.?\s*factura|invoice\s*no|invoice\s*number)[^\r\n:]*[:#\s]+([A-Z0-9\-\/]+)", RegexOptions.IgnoreCase)]
     private static partial Regex InvoiceNumberPriorityRegex();
 
@@ -732,16 +781,16 @@ internal static partial class DocumentHeuristicsParser
     [GeneratedRegex(@"(?:due\s*date|data\s*scadentei|scadenta)[^\r\n:]*[:#\s]+([^\r\n]+)", RegexOptions.IgnoreCase)]
     private static partial Regex DueDateLabelRegex();
 
-    [GeneratedRegex(@"\b\d{2}[./]\d{2}[./]\d{4}\b|\b\d{4}-\d{2}-\d{2}\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b\d{2}[./-]\d{2}[./-]\d{4}\b|\b\d{4}-\d{2}-\d{2}\b", RegexOptions.IgnoreCase)]
     private static partial Regex DateRegex();
 
     [GeneratedRegex(@"\b(?:January|February|March|April|May|June|July|August|September|October|November|December|ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)\s+\d{1,2}(?:,)?\s+\d{4}\b|\b\d{1,2}\s+(?:ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)\s+\d{4}\b", RegexOptions.IgnoreCase)]
     private static partial Regex LongDateRegex();
 
-    [GeneratedRegex(@"\b(?:total amount|grand total|amount due|de plata|total de plata|total)\b[^\r\n$]*(?:[$])?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:[.,]\d{2}))", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:total amount|grand total|amount due|de plata|total de plata|total)\b[^\r\n\d$]*(?:[$])?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:[.,]\d{2}))", RegexOptions.IgnoreCase)]
     private static partial Regex TotalRegex();
 
-    [GeneratedRegex(@"total\s+de\s+plata(?:[^\r\n]*)?[\r\n\s:|]*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:[.,]\d{2}))", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"total\s+de\s+plata[^\r\n\d]*[\r\n\s:|]*(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:[.,]\d{2}))", RegexOptions.IgnoreCase)]
     private static partial Regex TotalOfPaymentRegex();
 
     [GeneratedRegex(@"(?:subtotal|sub-total)[^\d$]*(?:[$])?(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:[.,]\d{2}))", RegexOptions.IgnoreCase)]
@@ -783,13 +832,16 @@ internal static partial class DocumentHeuristicsParser
     [GeneratedRegex(@"^(?<idx>\d+)\s+(?<desc>.+?)\s+buc\s+(?<qty>\d+)\s+(?<unit>\d+(?:[.,]\d{2}))\s+\d+\s+(?<amount>\d+(?:[.,]\d{2}))\s+(?<vat>\d+(?:[.,]\d{2}))$", RegexOptions.IgnoreCase)]
     private static partial Regex RomanianInvoiceLineRegex();
 
+    [GeneratedRegex(@"^\d+\s+(?<desc>.+?)\s+(?<qty>\d+)\s+\$?\s*(?<unit>\d+(?:[.,:]\d{2}))\s+\$?\s*(?<amount>\d+(?:[.,:]\d{2}))$", RegexOptions.IgnoreCase)]
+    private static partial Regex EnglishInvoiceLineRegex();
+
     [GeneratedRegex(@"^[A-Z0-9]{4,}\s+\d{8,}\s+.+$", RegexOptions.IgnoreCase)]
     private static partial Regex AltexItemStartRegex();
 
     [GeneratedRegex(@"^(?<green>\d+(?:[.,]\d+)?)\s+(?<qty>\d+)\s+(?<unit>\d+(?:[.,]\d{2}))\s+\|?\s*\d+%?\s+(?<amount>\d+(?:[.,]\d{2}))\s+(?<vat>\d+(?:[.,]\d{2}))\s+(?<total>\d+(?:[.,]\d{2}))$", RegexOptions.IgnoreCase)]
     private static partial Regex AltexNumericLineRegex();
 
-    [GeneratedRegex(@"^(?:\(?\d+\)?\s*)+$")]
+    [GeneratedRegex(@"^(?:\d+(?:\(\d+x\d+\))?\s*)+$", RegexOptions.IgnoreCase)]
     private static partial Regex TableLegendRegex();
 
     [GeneratedRegex(@"^\d+\(\d+x\d+\)(?:\s+\d+\(\d+x\d+\))*$", RegexOptions.IgnoreCase)]
